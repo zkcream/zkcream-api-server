@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "esModuleInterop": true,
+    "experimentalDecorators": true,
+    "alwaysStrict": true,
+    "allowJs": true,
+    "noImplicitAny": false,
+    "forceConsistentCasingInFileNames": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noImplicitReturns": false,
+    "noFallthroughCasesInSwitch": true,
+    "sourceMap": true,
+    "strict": true,
+    "outDir": "./build",
+    "lib": [ "es2015" ]
+  },
+  "exclude": [
+    "node_modules/**"
+  ],
+  "include": [
+    "./ts"
+  ]
+}
