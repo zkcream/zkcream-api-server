@@ -16,8 +16,8 @@ class VoteController implements IController {
         return this.Router.get('/', this.echo.bind(this))
     }
 
-    private async echo() {
-        console.log('echo')
+    private async echo(ctx: Koa.Context) {
+        ctx.body = 'hello\n'
     }
 }
 
