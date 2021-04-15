@@ -1,0 +1,14 @@
+---
+env: 'test'
+
+eth:
+  url: 'http://localhost:8545'
+  contracts:
+    creamFactory: '0x38cF23C52Bb4B13F051Aec09580a2dE845a7FA35'
+    maciFactory: '0x0d8cc4b8d15D4c3eF1d70af0071376fb26B5669b'
+
+  adminKey: '0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3'
+
+server:
+  port: 3000
+  host: 'http://localhost:3000'

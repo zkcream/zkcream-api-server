@@ -1,8 +1,10 @@
 import axios, { AxiosResponse } from 'axios'
-import app from '../app'
 
-const port = 3001
-const host = 'http://localhost:' + port
+import app from '../app'
+import config from '../config'
+
+const port = config.server.port
+const host = config.server.host
 
 const get = async (path?: string): Promise<AxiosResponse<any>> => {
     const url = path ? host + '/' + path : host
@@ -16,11 +18,13 @@ describe('Server API', () => {
         server = app.listen(port)
     })
 
-    test('echo server', async () => {
+    test('GET /:msg -> should echo msg', async () => {
         const e = 'zkCREAM'
         const r = await get(e)
         expect(e).toEqual(r.data.msg)
     })
+
+    test('GET /factory/elections -> should return deployed zkcream contracts', async () => {})
 
     afterAll(async () => {
         server.close()
