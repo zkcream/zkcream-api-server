@@ -1,6 +1,8 @@
+import * as ethers from 'ethers'
 import Koa from 'koa'
 
-import VoteController from './controller/vote'
+import FactoryController from './controller/factory'
+import EchoController from './controller/echo'
 
 class App {
     public app: Koa
@@ -11,7 +13,8 @@ class App {
     }
 
     private routes() {
-        this.app.use(VoteController.routes())
+        this.app.use(FactoryController.routes())
+        this.app.use(EchoController.routes())
     }
 }
 
