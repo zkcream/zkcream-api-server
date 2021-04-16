@@ -11,6 +11,11 @@ const get = async (path?: string): Promise<AxiosResponse<any>> => {
     return await axios.get(url)
 }
 
+const post = async (path: string, data: any): Promise<AxiosResponse<any>> => {
+    const url = host + '/' + path
+    return await axios.post(url, data)
+}
+
 let server
 
 describe('Server API', () => {
@@ -29,6 +34,24 @@ describe('Server API', () => {
 
         // r.data should either empty [] or string[]
         expect('object').toEqual(typeof r.data)
+    })
+
+    test('POST /ipfs -> should return hash', async () => {
+        const data = {
+            msg: 'zkCREAM',
+        }
+        const e = 'QmeT5VjyMrbL5HPHxy4UkjR5pijPhbHsV9w5T9MRDwEnkf'
+        const r = await post('ipfs', data)
+        expect(e).toEqual(r.data.path)
+    })
+
+    test('GET /ipfs -> should return correct data', async () => {
+        const hash = 'QmeT5VjyMrbL5HPHxy4UkjR5pijPhbHsV9w5T9MRDwEnkf'
+        const e = {
+            msg: 'zkCREAM',
+        }
+        const r = await get('ipfs/' + hash)
+        expect(e).toEqual(r.data)
     })
 
     afterAll(async () => {

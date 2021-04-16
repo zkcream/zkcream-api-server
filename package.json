@@ -18,6 +18,7 @@
     "@types/koa-router": "^7.4.1",
     "config": "^3.3.6",
     "ethers": "^5.1.0",
+    "ipfs-http-client": "^49.0.4",
     "js-yaml": "^4.1.0",
     "koa": "^2.13.1",
     "koa-bodyparser": "^4.3.0",
@@ -37,5 +38,8 @@
   },
   "lint-staged": {
     "./ts/**/*.{js,ts}": "prettier --write"
+  },
+  "engines": {
+    "node": ">=14"
   }
 }

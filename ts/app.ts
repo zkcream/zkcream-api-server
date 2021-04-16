@@ -3,6 +3,7 @@ import Koa, { Middleware } from 'koa'
 
 import EchoController from './controller/echo'
 import FactoryController from './controller/factory'
+import IpfsController from './controller/ipfs'
 import { middlewares } from './middlewares'
 
 class App {
@@ -40,8 +41,9 @@ class App {
     }
 
     private routes = () => {
-        this.app.use(FactoryController.routes())
         this.app.use(EchoController.routes())
+        this.app.use(FactoryController.routes())
+        this.app.use(IpfsController.routes())
     }
 }
 
