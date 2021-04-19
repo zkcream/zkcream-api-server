@@ -14,17 +14,41 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Start container
-        run: docker-compose -f "docker/docker-compose.yml" up -d
+      - name: Clone CREAM
+        uses: actions/checkout@v2
+        with:
+          repository: couger-inc/cream
+          path: cream
+          ref: 0.4
 
       - name: SetUp node-version ${{ matrix.node-version }}
         uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node-version }}
 
-      - name: Install
+      - name: Install yarn
         run: |
           npm install -g yarn
+
+      - name: Initialize zkCREAM
+        working-directory: cream
+        run: |
+          yarn
+          yarn build
+          ./packages/circuits/scripts/installZkutil.sh
+
+      - name: Setup ipfs
+        working-directory: cream
+        run: docker-compose -f "docker/docker-compose.yml" up -d
+
+      - name: Setup Contracts
+        working-directory: cream
+        run: |
+          yarn workspace @cream/contracts ganache > /dev/null & echo "GANACHE_PID=$(echo $!)" >> $GITHUB_ENV
+          yarn workspace @cream/contracts migrate
+
+      - name: Install
+        run: |
           yarn
           yarn build
 
@@ -32,6 +56,11 @@ jobs:
         run: |
           yarn test
 
+      - name: Kill Ganache
+        run: |
+          kill ${{ env.GANACHE_PID }}
+
       - name: Stop container
         if: always()
+        working-directory: cream
         run: docker-compose -f "docker/docker-compose.yml" down
