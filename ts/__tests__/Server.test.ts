@@ -1,10 +1,15 @@
+jest.setTimeout(50000)
+
 import axios, { AxiosResponse } from 'axios'
+import { Keypair, PrivKey } from 'maci-domainobjs'
 
 import app from '../app'
 import config from '../config'
 
 const port = config.server.port
 const host = config.server.host
+const coordinatorPrivKey = config.maci.coordinatorPrivKey
+const coordinator = new Keypair(new PrivKey(BigInt(coordinatorPrivKey)))
 
 const get = async (path?: string): Promise<AxiosResponse<any>> => {
     const url = path ? host + '/' + path : host
@@ -52,6 +57,38 @@ describe('Server API', () => {
         }
         const r = await get('ipfs/' + hash)
         expect(e).toEqual(r.data)
+    })
+
+    test('POST /zkcream/deploy -> should be able to deploy new cream contract', async () => {
+        const election = {
+            title: 'Fuck Martin Shkreli',
+            agree: '0x6330A553Fc93768F612722BB8c2eC78aC90B3bbc',
+            disagree: '0x5AEDA56215b167893e80B4fE645BA6d5Bab767DE',
+            recipients: [
+                '0x6330A553Fc93768F612722BB8c2eC78aC90B3bbc',
+                '0x5AEDA56215b167893e80B4fE645BA6d5Bab767DE',
+            ],
+        }
+
+        const hash = await post('ipfs', election)
+
+        const data = {
+            initial_voice_credit_balance: 100,
+            merkle_tree_height: 4,
+            coordinator_pubkey: coordinator.pubKey.asContractParam(),
+            coordinator_address: '0xf17f52151EbEF6C7334FAD080c5704D77216b732',
+            recipients: election.recipients,
+            ipfsHash: hash.data.path,
+        }
+
+        const r = await post('zkcream/deploy', data)
+        expect(r.data.status).toBeTruthy()
+
+        const logs = await get('zkcream/logs')
+        expect(logs.data.length > 0).toBeTruthy()
+
+        const deployedHash = logs.data[logs.data.length - 1][1] // [address, hash]
+        expect(deployedHash).toEqual(hash.data.path)
     })
 
     afterAll(async () => {

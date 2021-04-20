@@ -24,6 +24,8 @@
     "koa-bodyparser": "^4.3.0",
     "koa-logger": "^3.2.1",
     "koa-router": "^10.0.0",
+    "maci-crypto": "0.4.11",
+    "maci-domainobjs": "0.4.11",
     "ts-node": "^9.1.1",
     "typescript": "^4.2.4"
   },

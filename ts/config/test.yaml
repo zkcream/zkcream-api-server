@@ -9,6 +9,21 @@ eth:
 
   adminKey: '0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3'
 
+maci:
+  initialVoiceCreditBalance: 100
+  signUpDurationInSeconds: 3600 # 1 hour
+  votingDurationInSeconds: 3600 # 1 hour
+  coordinatorPrivKey: "2222222222263902553431241761119057960280734584214105336279476766401963593688"
+  tallyBatchsize: 4
+  messageBatchSize: 4
+  quadVoteTallyBatchSize: 4
+  voteOptionsMaxLeafIndex: 3
+
+  merkleTrees:
+    stateTreeDepth: 4
+    messageTreeDepth: 4
+    voteOptionTreeDepth: 2
+
 ipfs:
   url: 'http://localhost:5001'
 
