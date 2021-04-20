@@ -5,11 +5,6 @@
         "internalType": "contract MACIFactory",
         "name": "_maciFactory",
         "type": "address"
-      },
-      {
-        "internalType": "contract IVerifier",
-        "name": "_creamVerifier",
-        "type": "address"
       }
     ],
     "stateMutability": "nonpayable",
@@ -52,20 +47,6 @@
     ],
     "name": "OwnershipTransferred",
     "type": "event"
-  },
-  {
-    "inputs": [],
-    "name": "creamVerifier",
-    "outputs": [
-      {
-        "internalType": "contract IVerifier",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function",
-    "constant": true
   },
   {
     "inputs": [
@@ -190,6 +171,11 @@
   },
   {
     "inputs": [
+      {
+        "internalType": "contract IVerifier",
+        "name": "_creamVerifier",
+        "type": "address"
+      },
       {
         "internalType": "contract VotingToken",
         "name": "_votingToken",
