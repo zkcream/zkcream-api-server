@@ -22,6 +22,7 @@ const post = async (path: string, data: any): Promise<AxiosResponse<any>> => {
 }
 
 let server
+let election
 
 describe('Server API', () => {
     beforeAll(async () => {
@@ -60,7 +61,7 @@ describe('Server API', () => {
     })
 
     test('POST /zkcream/deploy -> should be able to deploy new cream contract', async () => {
-        const election = {
+        election = {
             title: 'Fuck Martin Shkreli',
             agree: '0x6330A553Fc93768F612722BB8c2eC78aC90B3bbc',
             disagree: '0x5AEDA56215b167893e80B4fE645BA6d5Bab767DE',
@@ -89,6 +90,14 @@ describe('Server API', () => {
 
         const deployedHash = logs.data[logs.data.length - 1][1] // [address, hash]
         expect(deployedHash).toEqual(hash.data.path)
+    })
+
+    test('GET /zkcream/:contractAddress -> should return contract details', async () => {
+        const logs = await get('zkcream/logs')
+        const contractAddress = logs.data[logs.data.length - 1][0] // [address, hash]
+
+        const r = await get('zkcream/' + contractAddress)
+        expect(election).toEqual(r.data)
     })
 
     afterAll(async () => {

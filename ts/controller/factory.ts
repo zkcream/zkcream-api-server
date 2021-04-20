@@ -1,10 +1,11 @@
+import axios, { AxiosResponse } from 'axios'
 import * as ethers from 'ethers'
 import Router from 'koa-router'
 import Koa from 'koa'
 
 import config from '../config'
 import { IController } from './interface'
-import { loadAbi } from './utils'
+import { deployModules, findHash, loadAbi } from './utils'
 
 import C_Verifier from '../../abis/CreamVerifier.json'
 import S_Token from '../../abis/SignUpToken.json'
@@ -12,6 +13,8 @@ import V_Token from '../../abis/VotingToken.json'
 
 const maciFactoryAddress = config.eth.contracts.maciFactory
 const maciFactoryAbi = loadAbi('MaciFactory.abi')
+
+const host = config.server.host
 
 class FactoryController implements IController {
     private Router = new Router({
@@ -36,10 +39,9 @@ class FactoryController implements IController {
     }
 
     public router = (): Router => {
-        return this.Router.get('/logs', this.getLogs.bind(this)).post(
-            '/deploy',
-            this.deployNewZkCream.bind(this)
-        )
+        return this.Router.get('/logs', this.getLogs.bind(this))
+            .post('/deploy', this.deployNewZkCream.bind(this))
+            .get('/:contractAddress', this.getDetails.bind(this))
     }
 
     /*
@@ -55,7 +57,7 @@ class FactoryController implements IController {
         try {
             logs = await this.creamFactoryInstance.queryFilter(eventName)
             ctx.body = logs.map((log) => {
-                return log.args
+                return [log.args['creamAddress'], log.args['ipfsHash']]
             })
         } catch (e) {
             if (e.message === `Cannot read property 'getLogs' of null`) {
@@ -69,7 +71,7 @@ class FactoryController implements IController {
     }
 
     /*
-     @return -
+     @return - boolean transaction status
    */
     private deployNewZkCream = async (ctx: Koa.Context) => {
         // TODO: move check ownerhip to init()
@@ -107,7 +109,7 @@ class FactoryController implements IController {
             votingTokenContract,
             signUpTokenContract,
             creamVerifierContract,
-        } = await this.deployModules(votingToken, signUpToken, creamVerifier)
+        } = await deployModules(votingToken, signUpToken, creamVerifier)
 
         const {
             initial_voice_credit_balance,
@@ -133,15 +135,14 @@ class FactoryController implements IController {
         ctx.body = await tx.wait()
     }
 
-    private deployModules = async (votingToken, signUpToken, creamVerifier) => {
-        const votingTokenContract = await votingToken.deploy()
-        const signUpTokenContract = await signUpToken.deploy()
-        const creamVerifierContract = await creamVerifier.deploy()
-        return {
-            votingTokenContract,
-            signUpTokenContract,
-            creamVerifierContract,
-        }
+    private getDetails = async (ctx: Koa.Context) => {
+        const contractAddress = ctx.params.contractAddress
+
+        await this.getLogs(ctx)
+        const ipfsHash = findHash(contractAddress, ctx.body)
+        const url = host + '/ipfs/' + ipfsHash
+        const r = await axios.get(url)
+        ctx.body = r.data
     }
 }
 
