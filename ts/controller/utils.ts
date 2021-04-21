@@ -6,13 +6,13 @@ export const deployModules = async (
     signUpToken,
     creamVerifier
 ) => {
-    const votingTokenContract = await votingToken.deploy()
-    const signUpTokenContract = await signUpToken.deploy()
-    const creamVerifierContract = await creamVerifier.deploy()
+    const votingTokenInstance = await votingToken.deploy()
+    const signUpTokenInstance = await signUpToken.deploy()
+    const creamVerifierInstance = await creamVerifier.deploy()
     return {
-        votingTokenContract,
-        signUpTokenContract,
-        creamVerifierContract,
+        votingTokenInstance,
+        signUpTokenInstance,
+        creamVerifierInstance,
     }
 }
 

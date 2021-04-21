@@ -1,5 +1,3 @@
-jest.setTimeout(50000)
-
 import app from '../app'
 import config from '../config'
 import { get, post } from './utils'

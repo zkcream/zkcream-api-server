@@ -53,12 +53,27 @@ describe('Contract interaction API', () => {
         expect(deployedHash).toEqual(hash.data.path)
     })
 
-    test('GET /zkcream/:contractAddress -> should return contract details', async () => {
+    test('GET /zkcream/:address -> should return contract details', async () => {
         const logs = await get('zkcream/logs')
         const contractAddress = logs.data[logs.data.length - 1][0] // [address, hash]
 
         const r = await get('zkcream/' + contractAddress)
         expect(election).toEqual(r.data)
+    })
+
+    test('GET /zkcream/faucet/:address/:voter -> should correctly distribute token to voter', async () => {
+        const logs = await get('zkcream/logs')
+        const contractAddress = logs.data[logs.data.length - 1][0] // [address, hash]
+        const voter = '0xC5fdf4076b8F3A5357c5E395ab970B5B54098Fef'
+        const r = await get('zkcream/faucet/' + contractAddress + '/' + voter)
+        expect(r.data.status).toBeTruthy()
+        expect(r.data.events[r.data.events.length - 1].event).toEqual(
+            'Transfer'
+        )
+
+        // check if voter received token
+        const r2 = await get('zkcream/' + contractAddress + '/' + voter)
+        expect(r2.data[0]).toEqual(1)
     })
 
     afterAll(async () => {
