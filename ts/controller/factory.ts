@@ -14,7 +14,7 @@ import V_Token from '../../abis/VotingToken.json'
 const maciFactoryAddress = config.eth.contracts.maciFactory
 const maciFactoryAbi = loadAbi('MaciFactory.abi')
 
-const host = config.server.host
+const port = config.server.port
 
 class FactoryController implements IController {
     private Router = new Router({
@@ -140,7 +140,7 @@ class FactoryController implements IController {
 
         await this.getLogs(ctx)
         const ipfsHash = findHash(contractAddress, ctx.body)
-        const url = host + '/ipfs/' + ipfsHash
+        const url = 'http://localhost:' + port + '/ipfs/' + ipfsHash
         const r = await axios.get(url)
         ctx.body = r.data
     }
