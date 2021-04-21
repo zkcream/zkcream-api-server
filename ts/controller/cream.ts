@@ -30,6 +30,7 @@ class CreamController implements IController {
         return this.Router.get('/:address', this.getDetails.bind(this))
             .get('/:address/:voter', this.hasToken.bind(this))
             .get('/faucet/:address/:voter', this.transferToken.bind(this))
+            .post('/deposit/:address', this.deposit.bind(this))
     }
 
     /*
@@ -71,6 +72,10 @@ class CreamController implements IController {
         ctx.body = r
     }
 
+    /*
+     @return - number[] number of tokens voter own
+                        TODO: should return false if voter own > 1
+   */
     private hasToken = async (ctx: Koa.Context) => {
         const creamAddress = ctx.params.address
         const voter = ctx.params.voter
@@ -106,6 +111,32 @@ class CreamController implements IController {
         )
 
         ctx.body = arr
+    }
+
+    private deposit = async (ctx: Koa.Context) => {
+        const creamAddress = ctx.params.address
+        const { commitment, voter } = ctx.request.body
+
+        const s = this.provider.getSigner(voter).connectUnchecked()
+
+        const creamInstance = new ethers.Contract(creamAddress, creamAbi, s)
+
+        const votingTokenAddress = await creamInstance.votingToken()
+
+        // approval
+        const votingTokenInstance = new ethers.Contract(
+            votingTokenAddress,
+            V_Token.abi,
+            s
+        )
+
+        await votingTokenInstance.setApprovalForAll(creamAddress, true, {
+            from: voter,
+        })
+
+        const tx = await creamInstance.deposit(commitment, { from: voter })
+        const r = await tx.wait()
+        ctx.body = r
     }
 }
 

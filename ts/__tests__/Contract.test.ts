@@ -1,5 +1,6 @@
 jest.setTimeout(50000)
 
+import { createDeposit, rbigInt, toHex } from 'libcream'
 import { Keypair, PrivKey } from 'maci-domainobjs'
 
 import app from '../app'
@@ -12,6 +13,8 @@ const coordinator = new Keypair(new PrivKey(BigInt(coordinatorPrivKey)))
 
 let server
 let election
+let zkCreamAddress
+let deposit
 
 describe('Contract interaction API', () => {
     beforeAll(async () => {
@@ -62,24 +65,34 @@ describe('Contract interaction API', () => {
 
     test('GET /zkcream/:address -> should return contract details', async () => {
         const logs = await get('factory/logs')
-        const contractAddress = logs.data[logs.data.length - 1][0] // [address, hash]
-        const r = await get('zkcream/' + contractAddress)
+        zkCreamAddress = logs.data[logs.data.length - 1][0] // get last deployed address
+        const r = await get('zkcream/' + zkCreamAddress)
         expect(r.data).toEqual(election)
     })
 
     test('GET /zkcream/faucet/:address/:voter -> should correctly distribute token to voter', async () => {
-        const logs = await get('factory/logs')
-        const contractAddress = logs.data[logs.data.length - 1][0] // [address, hash]
         const voter = '0xC5fdf4076b8F3A5357c5E395ab970B5B54098Fef'
-        const r = await get('zkcream/faucet/' + contractAddress + '/' + voter)
+        const r = await get('zkcream/faucet/' + zkCreamAddress + '/' + voter)
         expect(r.data.status).toBeTruthy()
         expect(r.data.events[r.data.events.length - 1].event).toEqual(
             'Transfer'
         )
 
         // check if voter received token
-        const r2 = await get('zkcream/' + contractAddress + '/' + voter)
+        const r2 = await get('zkcream/' + zkCreamAddress + '/' + voter)
         expect(r2.data[0]).toEqual(1)
+    })
+
+    test('POST /zkcream/deposit/:address -> should correctly deposit voting token', async () => {
+        deposit = createDeposit(rbigInt(31), rbigInt(31))
+        const voter = '0xC5fdf4076b8F3A5357c5E395ab970B5B54098Fef'
+        const data = {
+            commitment: toHex(deposit.commitment),
+            voter,
+        }
+        const r = await post('zkcream/deposit/' + zkCreamAddress, data)
+        expect(r.data.status).toBeTruthy()
+        expect(r.data.events[r.data.events.length - 1].event).toEqual('Deposit')
     })
 
     afterAll(async () => {

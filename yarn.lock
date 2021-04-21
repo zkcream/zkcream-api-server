@@ -385,6 +385,15 @@
     "@ethersproject/logger" "^5.1.0"
     bn.js "^4.4.0"
 
+"@ethersproject/bignumber@^5.0.14":
+  version "5.1.1"
+  resolved "https://registry.yarnpkg.com/@ethersproject/bignumber/-/bignumber-5.1.1.tgz#84812695253ccbc639117f7ac49ee1529b68e637"
+  integrity sha512-AVz5iqz7+70RIqoQTznsdJ6DOVBYciNlvO+AlQmPTB6ofCvoihI9bQdr6wljsX+d5W7Yc4nyvQvP4JMzg0Agig==
+  dependencies:
+    "@ethersproject/bytes" "^5.1.0"
+    "@ethersproject/logger" "^5.1.0"
+    bn.js "^4.4.0"
+
 "@ethersproject/bytes@5.1.0", "@ethersproject/bytes@^5.0.4", "@ethersproject/bytes@^5.1.0":
   version "5.1.0"
   resolved "https://registry.yarnpkg.com/@ethersproject/bytes/-/bytes-5.1.0.tgz#55dfa9c4c21df1b1b538be3accb50fb76d5facfd"
@@ -2044,6 +2053,16 @@ circom_runtime@0.1.4:
     ffjavascript "0.2.10"
     fnv-plus "^1.3.1"
 
+circomlib@^0.2.4:
+  version "0.2.4"
+  resolved "https://registry.yarnpkg.com/circomlib/-/circomlib-0.2.4.tgz#5c487e69738c90bd73527d8830d2b2413d6f68ff"
+  integrity sha512-5x1/kn+7MJaakdGdKRCDMSCVsioyhFgWYCf2dbbd9xMmnZkMFjJpKzsE0UxncprFjyU2A8sVB1eb5Gj0pMaQBg==
+  dependencies:
+    blake-hash "^1.1.0"
+    blake2b "^2.1.3"
+    circom "0.5.21"
+    ffjavascript "0.1.0"
+
 "circomlib@https://github.com/iden3/circomlib.git#01da5f90dbbefeed5d78cec3b87303244338b920":
   version "0.2.3"
   resolved "https://github.com/iden3/circomlib.git#01da5f90dbbefeed5d78cec3b87303244338b920"
@@ -2285,6 +2304,14 @@ cosmiconfig@^7.0.0:
     parse-json "^5.0.0"
     path-type "^4.0.0"
     yaml "^1.10.0"
+
+cream-merkle-tree@^0.0.7:
+  version "0.0.7"
+  resolved "https://registry.yarnpkg.com/cream-merkle-tree/-/cream-merkle-tree-0.0.7.tgz#a35e52f1362aacc99f0d90365c8dbdaf5dfe013e"
+  integrity sha512-tp9T+chqS6n2dCgfwfzbS2lVlsaCOxy8D5DSaKPkGHUEnI6mdpZJBDn/cEgWJOthe4PoNIxGD8Ln3l+Oy+Gfng==
+  dependencies:
+    circomlib "^0.2.4"
+    typescript "^3.9.9"
 
 create-ecdh@^4.0.0:
   version "4.0.4"
@@ -5065,6 +5092,19 @@ levn@~0.3.0:
     prelude-ls "~1.1.2"
     type-check "~0.3.2"
 
+libcream@^0.1.2:
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/libcream/-/libcream-0.1.2.tgz#8f2c461fd302bf30ecdb02f8ee9869794c150046"
+  integrity sha512-74qQrE0FSqCTtJ6D6dB1cjEJX5Lz1A3JRaQ69gVWlX+mw29DFsHPUa5uPv1i9UKX2wsoaWerP1Gdl9MYbK6xJg==
+  dependencies:
+    "@ethersproject/bignumber" "^5.0.14"
+    circomlib "^0.2.4"
+    cream-merkle-tree "^0.0.7"
+    lint-staged "^10.5.4"
+    maci-crypto "^0.4.11"
+    maci-domainobjs "^0.4.11"
+    typescript "^3.9.9"
+
 libp2p-crypto@^0.19.0:
   version "0.19.3"
   resolved "https://registry.yarnpkg.com/libp2p-crypto/-/libp2p-crypto-0.19.3.tgz#2f98200307028f35e31dfabd281bc4e20afa7a46"
@@ -5178,7 +5218,7 @@ lru-cache@^6.0.0:
   dependencies:
     yallist "^4.0.0"
 
-maci-crypto@0.4.11:
+maci-crypto@0.4.11, maci-crypto@^0.4.11:
   version "0.4.11"
   resolved "https://registry.yarnpkg.com/maci-crypto/-/maci-crypto-0.4.11.tgz#4556e0ae66ba46876a75ca998acbe6aaefafbff6"
   integrity sha512-clmUu4OJJgm/5owZjRUqymtl3xv1hE0wCjxFSALCHw9U+BE+dBP/JZhG6M0uoyNNBV+ixY6Wfkysep0LQw8FcQ==
@@ -5187,7 +5227,7 @@ maci-crypto@0.4.11:
     ethers "^4.0.45"
     ffjavascript "0.1.0"
 
-maci-domainobjs@0.4.11:
+maci-domainobjs@0.4.11, maci-domainobjs@^0.4.11:
   version "0.4.11"
   resolved "https://registry.yarnpkg.com/maci-domainobjs/-/maci-domainobjs-0.4.11.tgz#0d9a2e477ccb9c06569e426cc98ddc69e6b5542e"
   integrity sha512-INlm1FaI/CuiQ4e9XuweRnb3Du/oLLtG+3+RcP7CO0U8Ij5KK9lx1lC5uuUoEBo/AWDPDpILyXcEunMJrgejRQ==
@@ -7249,6 +7289,11 @@ typedarray-to-buffer@^3.1.5:
   integrity sha512-zdu8XMNEDepKKR+XYOXAVPtWui0ly0NtohUscw+UmaHiAWT8hrV1rr//H6V+0DvJ3OQ19S979M0laLfX8rm82Q==
   dependencies:
     is-typedarray "^1.0.0"
+
+typescript@^3.9.9:
+  version "3.9.9"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.9.9.tgz#e69905c54bc0681d0518bd4d587cc6f2d0b1a674"
+  integrity sha512-kdMjTiekY+z/ubJCATUPlRDl39vXYiMV9iyeMuEuXZh2we6zz80uovNN2WlAxmmdE/Z/YQe+EbOEXB5RHEED3w==
 
 typescript@^4.2.4:
   version "4.2.4"

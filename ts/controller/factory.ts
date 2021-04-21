@@ -51,7 +51,6 @@ class FactoryController implements IController {
      */
     private getLogs = async (ctx: Koa.Context) => {
         const eventName: any = 'CreamCreated'
-
         let logs: any[]
 
         try {
