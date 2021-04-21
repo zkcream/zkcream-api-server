@@ -1,11 +1,10 @@
-import axios, { AxiosResponse } from 'axios'
 import * as ethers from 'ethers'
 import Router from 'koa-router'
 import Koa from 'koa'
 
 import config from '../config'
 import { IController } from './interface'
-import { deployModules, findHash, loadAbi } from './utils'
+import { deployModules, loadAbi } from './utils'
 
 import C_Verifier from '../../abis/CreamVerifier.json'
 import S_Token from '../../abis/SignUpToken.json'
@@ -13,38 +12,36 @@ import V_Token from '../../abis/VotingToken.json'
 
 const maciFactoryAddress = config.eth.contracts.maciFactory
 const maciFactoryAbi = loadAbi('MaciFactory.abi')
+const creamFactoryAbi = loadAbi('CreamFactory.abi')
 const creamAbi = loadAbi('Cream.abi')
 
 const port = config.server.port
 
 class FactoryController implements IController {
     private Router = new Router({
-        prefix: '/zkcream',
+        prefix: '/factory',
     })
     private provider: ethers.providers.JsonRpcProvider
     private signer: ethers.Wallet
     public creamFactoryAddress: string
-    public creamFactoryAbi: any
     public creamFactoryInstance: ethers.Contract
 
     constructor() {
         this.provider = new ethers.providers.JsonRpcProvider(config.eth.url)
         this.signer = new ethers.Wallet(config.eth.adminKey, this.provider)
         this.creamFactoryAddress = config.eth.contracts.creamFactory
-        this.creamFactoryAbi = loadAbi('CreamFactory.abi')
         this.creamFactoryInstance = new ethers.Contract(
             this.creamFactoryAddress,
-            this.creamFactoryAbi,
+            creamFactoryAbi,
             this.signer
         )
     }
 
     public router = (): Router => {
-        return this.Router.get('/logs', this.getLogs.bind(this))
-            .post('/deploy', this.deployNewZkCream.bind(this))
-            .get('/:address', this.getDetails.bind(this))
-            .get('/:address/:voter', this.hasToken.bind(this))
-            .get('/faucet/:address/:voter', this.transferToken.bind(this))
+        return this.Router.get('/logs', this.getLogs.bind(this)).post(
+            '/deploy',
+            this.deployNewZkCream.bind(this)
+        )
     }
 
     /*
@@ -144,82 +141,6 @@ class FactoryController implements IController {
         console.assert(r2.status)
 
         ctx.body = r
-    }
-
-    /*
-     @return - object election details
-   */
-    private getDetails = async (ctx: Koa.Context) => {
-        const contractAddress = ctx.params.address
-
-        await this.getLogs(ctx)
-        const ipfsHash = findHash(contractAddress, ctx.body)
-        const url = 'http://localhost:' + port + '/ipfs/' + ipfsHash
-        const r = await axios.get(url)
-        ctx.body = r.data
-    }
-
-    /*
-     @return - boolean transaction status
-   */
-    private transferToken = async (ctx: Koa.Context) => {
-        const creamAddress = ctx.params.address
-        const voter = ctx.params.voter
-        const creamInstance = new ethers.Contract(
-            creamAddress,
-            creamAbi,
-            this.signer
-        )
-
-        const votingTokenAddress = await creamInstance.votingToken()
-
-        const votingTokenInstance = new ethers.Contract(
-            votingTokenAddress,
-            V_Token.abi,
-            this.signer
-        )
-
-        const tx = await votingTokenInstance.giveToken(voter)
-        const r = await tx.wait()
-
-        ctx.body = r
-    }
-
-    private hasToken = async (ctx: Koa.Context) => {
-        const creamAddress = ctx.params.address
-        const voter = ctx.params.voter
-        const arr: number[] = []
-
-        const creamInstance = new ethers.Contract(
-            creamAddress,
-            creamAbi,
-            this.signer
-        )
-
-        const votingTokenAddress = await creamInstance.votingToken()
-
-        const votingTokenInstance = new ethers.Contract(
-            votingTokenAddress,
-            V_Token.abi,
-            this.signer
-        )
-
-        const signUpTokenAddress = await creamInstance.signUpToken()
-
-        const signUpTokenInstance = new ethers.Contract(
-            signUpTokenAddress,
-            S_Token.abi,
-            this.signer
-        )
-
-        arr.push(
-            parseInt((await votingTokenInstance.balanceOf(voter)).toString())
-        )
-        arr.push(
-            parseInt((await signUpTokenInstance.balanceOf(voter)).toString())
-        )
-
-        ctx.body = arr
     }
 }
 

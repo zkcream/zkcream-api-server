@@ -1,6 +1,7 @@
 import * as ethers from 'ethers'
 import Koa, { Middleware } from 'koa'
 
+import CreamController from './controller/cream'
 import EchoController from './controller/echo'
 import FactoryController from './controller/factory'
 import IpfsController from './controller/ipfs'
@@ -41,6 +42,7 @@ class App {
     }
 
     private routes = () => {
+        this.app.use(CreamController.routes())
         this.app.use(EchoController.routes())
         this.app.use(FactoryController.routes())
         this.app.use(IpfsController.routes())

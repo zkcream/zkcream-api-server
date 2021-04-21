@@ -18,13 +18,6 @@ describe('Server API', () => {
         expect(e).toEqual(r.data.msg)
     })
 
-    test('GET /zkcream/logs -> should return deployed zkcream contracts', async () => {
-        const r = await get('zkcream/logs')
-
-        // r.data should either empty [] or string[]
-        expect('object').toEqual(typeof r.data)
-    })
-
     test('POST /ipfs -> should return hash', async () => {
         const data = {
             msg: 'zkCREAM',

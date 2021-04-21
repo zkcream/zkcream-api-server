@@ -18,7 +18,14 @@ describe('Contract interaction API', () => {
         server = app.listen(port)
     })
 
-    test('POST /zkcream/deploy -> should be able to deploy new cream contract', async () => {
+    test('GET /factory/logs -> should return deployed zkcream contracts', async () => {
+        const r = await get('factory/logs')
+
+        // r.data should either empty [] or string[]
+        expect('object').toEqual(typeof r.data)
+    })
+
+    test('POST /factory/deploy -> should be able to deploy new cream contract', async () => {
         election = {
             title: 'Fuck Martin Shkreli',
             agree: '0x6330A553Fc93768F612722BB8c2eC78aC90B3bbc',
@@ -40,13 +47,13 @@ describe('Contract interaction API', () => {
             ipfsHash: hash.data.path,
         }
 
-        const r = await post('zkcream/deploy', data)
+        const r = await post('factory/deploy', data)
         expect(r.data.status).toBeTruthy()
         expect(r.data.events[r.data.events.length - 1].event).toEqual(
             'CreamCreated'
         )
 
-        const logs = await get('zkcream/logs')
+        const logs = await get('factory/logs')
         expect(logs.data.length > 0).toBeTruthy()
 
         const deployedHash = logs.data[logs.data.length - 1][1] // [address, hash]
@@ -54,15 +61,14 @@ describe('Contract interaction API', () => {
     })
 
     test('GET /zkcream/:address -> should return contract details', async () => {
-        const logs = await get('zkcream/logs')
+        const logs = await get('factory/logs')
         const contractAddress = logs.data[logs.data.length - 1][0] // [address, hash]
-
         const r = await get('zkcream/' + contractAddress)
-        expect(election).toEqual(r.data)
+        expect(r.data).toEqual(election)
     })
 
     test('GET /zkcream/faucet/:address/:voter -> should correctly distribute token to voter', async () => {
-        const logs = await get('zkcream/logs')
+        const logs = await get('factory/logs')
         const contractAddress = logs.data[logs.data.length - 1][0] // [address, hash]
         const voter = '0xC5fdf4076b8F3A5357c5E395ab970B5B54098Fef'
         const r = await get('zkcream/faucet/' + contractAddress + '/' + voter)
