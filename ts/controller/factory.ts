@@ -25,6 +25,10 @@ class FactoryController implements IController {
     private signer: ethers.Wallet
     public creamFactoryAddress: string
     public creamFactoryInstance: ethers.Contract
+    public maciFactoryInstance: ethers.Contract
+    public votingToken: ethers.ContractFactory
+    public signUpToken: ethers.ContractFactory
+    public creamVerifier: ethers.ContractFactory
 
     constructor() {
         this.provider = new ethers.providers.JsonRpcProvider(config.eth.url)
@@ -33,6 +37,28 @@ class FactoryController implements IController {
         this.creamFactoryInstance = new ethers.Contract(
             this.creamFactoryAddress,
             creamFactoryAbi,
+            this.signer
+        )
+
+        this.maciFactoryInstance = new ethers.Contract(
+            maciFactoryAddress,
+            maciFactoryAbi,
+            this.signer
+        )
+
+        this.votingToken = new ethers.ContractFactory(
+            V_Token.abi,
+            V_Token.bytecode,
+            this.signer
+        )
+        this.signUpToken = new ethers.ContractFactory(
+            S_Token.abi,
+            S_Token.bytecode,
+            this.signer
+        )
+        this.creamVerifier = new ethers.ContractFactory(
+            C_Verifier.abi,
+            C_Verifier.bytecode,
             this.signer
         )
     }
@@ -73,42 +99,25 @@ class FactoryController implements IController {
      @return - transaction details
    */
     private deployNewZkCream = async (ctx: Koa.Context) => {
-        // TODO: move check ownerhip to init()
         // Check if MACIFactory is owned by CreamFactory contract
-        const maciFactoryContract = new ethers.Contract(
-            maciFactoryAddress,
-            maciFactoryAbi,
-            this.signer
-        )
-        if ((await maciFactoryContract.owner()) != this.creamFactoryAddress) {
-            await maciFactoryContract.transferOwnership(
+        if (
+            (await this.maciFactoryInstance.owner()) != this.creamFactoryAddress
+        ) {
+            await this.maciFactoryInstance.transferOwnership(
                 this.creamFactoryAddress
             )
         }
 
-        // TODO: Switch this.siger to sender's account
         // Deploy votingToken, signUpToken and creamVerifier
-        const votingToken = new ethers.ContractFactory(
-            V_Token.abi,
-            V_Token.bytecode,
-            this.signer
-        )
-        const signUpToken = new ethers.ContractFactory(
-            S_Token.abi,
-            S_Token.bytecode,
-            this.signer
-        )
-        const creamVerifier = new ethers.ContractFactory(
-            C_Verifier.abi,
-            C_Verifier.bytecode,
-            this.signer
-        )
-
         const {
             votingTokenInstance,
             signUpTokenInstance,
             creamVerifierInstance,
-        } = await deployModules(votingToken, signUpToken, creamVerifier)
+        } = await deployModules(
+            this.votingToken,
+            this.signUpToken,
+            this.creamVerifier
+        )
 
         const {
             initial_voice_credit_balance,
