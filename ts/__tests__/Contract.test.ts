@@ -42,6 +42,9 @@ describe('Contract interaction API', () => {
 
         const r = await post('zkcream/deploy', data)
         expect(r.data.status).toBeTruthy()
+        expect(r.data.events[r.data.events.length - 1].event).toEqual(
+            'CreamCreated'
+        )
 
         const logs = await get('zkcream/logs')
         expect(logs.data.length > 0).toBeTruthy()

@@ -132,7 +132,15 @@ class FactoryController implements IController {
             coordinator_address
         )
 
-        ctx.body = await tx.wait()
+        const r = await tx.wait()
+
+        // transfer SignUpToken contract ownership
+        const newCreamAddress = r.events[r.events.length - 1].args[0]
+        const tx2 = await signUpTokenContract.transferOwnership(newCreamAddress)
+        const r2 = await tx2.wait()
+        console.assert(r2.status)
+
+        ctx.body = r
     }
 
     private getDetails = async (ctx: Koa.Context) => {
