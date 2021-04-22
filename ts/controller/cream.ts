@@ -27,10 +27,40 @@ class CreamController implements IController {
     }
 
     public router = (): Router => {
-        return this.Router.get('/:address', this.getDetails.bind(this))
+        return this.Router.get(
+            '/deposit/logs/:address',
+            this.getLogs.bind(this)
+        )
+            .get('/:address', this.getDetails.bind(this))
             .get('/:address/:voter', this.hasToken.bind(this))
             .get('/faucet/:address/:voter', this.transferToken.bind(this))
             .post('/deposit/:address', this.deposit.bind(this))
+    }
+
+    private getLogs = async (ctx: Koa.Context) => {
+        const contractAddress = ctx.params.address
+        const creamInstance = new ethers.Contract(
+            contractAddress,
+            creamAbi,
+            this.signer
+        )
+        const eventName: any = 'Deposit'
+        let logs: any[]
+
+        try {
+            logs = await creamInstance.queryFilter(eventName)
+            ctx.body = logs.map((log) => {
+                return log.args
+            })
+        } catch (e) {
+            if (e.message === `Cannot read property 'getLogs' of null`) {
+                logs = []
+                ctx.body = logs
+            } else {
+                ctx.throw(e)
+                console.log(e.messsage, e.stack)
+            }
+        }
     }
 
     /*

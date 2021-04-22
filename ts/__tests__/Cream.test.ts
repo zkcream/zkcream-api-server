@@ -100,6 +100,11 @@ describe('Cream contract interaction API', () => {
         expect(r2.data[0]).toEqual(0)
     })
 
+    test('GET /zkcream/deposit/logs/:address -> should return deposit events', async () => {
+        const r = await get('zkcream/deposit/logs/' + zkCreamAddress)
+        expect(r.data[0][0]).toEqual(toHex(deposit.commitment))
+    })
+
     afterAll(async () => {
         server.close()
     })
