@@ -16,7 +16,7 @@ let election
 let zkCreamAddress
 let deposit
 
-describe('Contract interaction API', () => {
+describe('Cream contract interaction API', () => {
     beforeAll(async () => {
         server = app.listen(port)
     })
@@ -70,6 +70,7 @@ describe('Contract interaction API', () => {
         expect(r.data).toEqual(election)
     })
 
+    // TODO: Need authentication for voter's address
     test('GET /zkcream/faucet/:address/:voter -> should correctly distribute token to voter', async () => {
         const voter = '0xC5fdf4076b8F3A5357c5E395ab970B5B54098Fef'
         const r = await get('zkcream/faucet/' + zkCreamAddress + '/' + voter)
@@ -93,6 +94,10 @@ describe('Contract interaction API', () => {
         const r = await post('zkcream/deposit/' + zkCreamAddress, data)
         expect(r.data.status).toBeTruthy()
         expect(r.data.events[r.data.events.length - 1].event).toEqual('Deposit')
+
+        // check if voter do not onw token any more
+        const r2 = await get('zkcream/' + zkCreamAddress + '/' + voter)
+        expect(r2.data[0]).toEqual(0)
     })
 
     afterAll(async () => {
