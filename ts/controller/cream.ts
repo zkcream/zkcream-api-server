@@ -117,12 +117,14 @@ class CreamController implements IController {
         const creamAddress = ctx.params.address
         const { commitment, voter } = ctx.request.body
 
-        const signer = this.provider.getSigner(voter).connectUnchecked()
+        const signer = this.provider.getSigner(voter)
+
         const creamInstance = new ethers.Contract(
             creamAddress,
             creamAbi,
             signer
         )
+
         const votingTokenAddress = await creamInstance.votingToken()
 
         // approval
@@ -132,11 +134,9 @@ class CreamController implements IController {
             signer
         )
 
-        await votingTokenInstance.setApprovalForAll(creamAddress, true, {
-            from: voter,
-        })
+        await votingTokenInstance.setApprovalForAll(creamAddress, true)
 
-        const tx = await creamInstance.deposit(commitment, { from: voter })
+        const tx = await creamInstance.deposit(commitment)
         const r = await tx.wait()
         ctx.body = r
     }
