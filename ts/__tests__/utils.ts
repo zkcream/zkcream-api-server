@@ -47,13 +47,12 @@ type FormattedProof<T> = {
     7: T
 }
 
-const compileAndLoadCircuit = async (circuitFileName: string) => {
+const compileAndLoadCircuit = async (
+    circuitFileName: string,
+    creamPath: string
+) => {
     const circuit = await tester(
-        path.join(
-            __dirname,
-            '../../../cream/packages/circuits/circom',
-            circuitFileName
-        )
+        path.join(creamPath, '/circom/', circuitFileName)
     )
     await circuit.loadSymbols()
     return circuit
@@ -99,7 +98,10 @@ export const genProofAndPublicSignals = async (
         path.join(creamCircuitsPath, './node_modules/snarkjs/build/cli.cjs')
 
     if (!circuit) {
-        circuit = await compileAndLoadCircuit(circuitFileName)
+        circuit = await compileAndLoadCircuit(
+            circuitFileName,
+            creamCircuitsPath
+        )
     }
 
     fs.writeFileSync(inputsJsonPath, JSON.stringify(stringifyBigInts(inputs)))

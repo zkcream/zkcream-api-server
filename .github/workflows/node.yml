@@ -13,12 +13,14 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+        with:
+          path: zkcream-api-server/zkcream-api-server
 
       - name: Clone CREAM
         uses: actions/checkout@v2
         with:
           repository: couger-inc/cream
-          path: cream
+          path: zkcream-api-server/cream
           ref: 0.4
 
       - name: SetUp node-version ${{ matrix.node-version }}
@@ -31,28 +33,30 @@ jobs:
           npm install -g yarn
 
       - name: Initialize zkCREAM
-        working-directory: cream
+        working-directory: zkcream-api-server/cream
         run: |
           yarn
           yarn build
           ./packages/circuits/scripts/installZkutil.sh
 
       - name: Setup ipfs
-        working-directory: cream
+        working-directory: zkcream-api-server/cream
         run: docker-compose -f "docker/docker-compose.yml" up -d
 
       - name: Setup Contracts
-        working-directory: cream
+        working-directory: zkcream-api-server/cream
         run: |
           yarn workspace @cream/contracts ganache > /dev/null & echo "GANACHE_PID=$(echo $!)" >> $GITHUB_ENV
           yarn workspace @cream/contracts migrate
 
       - name: Install
+        working-directory: zkcream-api-server/zkcream-api-server
         run: |
           yarn
           yarn build
 
       - name: Test
+        working-directory: zkcream-api-server/zkcream-api-server
         run: |
           yarn test
 
@@ -62,5 +66,5 @@ jobs:
 
       - name: Stop container
         if: always()
-        working-directory: cream
+        working-directory: zkcream-api-server/cream
         run: docker-compose -f "docker/docker-compose.yml" down
