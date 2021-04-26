@@ -1,11 +1,17 @@
 jest.setTimeout(50000)
 
-import { createDeposit, rbigInt, toHex } from 'libcream'
+import {
+    createDeposit,
+    generateMerkleProof,
+    pedersenHash,
+    rbigInt,
+    toHex,
+} from 'libcream'
 import { Keypair, PrivKey } from 'maci-domainobjs'
 
 import app from '../app'
 import config from '../config'
-import { get, post } from './utils'
+import { genProofAndPublicSignals, get, post } from './utils'
 
 const port = config.server.port
 const coordinatorPrivKey = config.maci.coordinatorPrivKey
@@ -103,6 +109,55 @@ describe('Cream contract interaction API', () => {
     test('GET /zkcream/deposit/logs/:address -> should return deposit events', async () => {
         const r = await get('zkcream/deposit/logs/' + zkCreamAddress)
         expect(r.data[0][0]).toEqual(toHex(deposit.commitment))
+    })
+
+    test('POST /zkcream/signup/:address -> should be able to sign up MACI', async () => {
+        const params = {
+            depth: 4,
+            zero_value:
+                '2558267815324835836571784235309882327407732303445109280607932348234378166811',
+        }
+        const { root, merkleProof } = await generateMerkleProof(
+            deposit,
+            zkCreamAddress,
+            params
+        )
+
+        const input = {
+            root,
+            nullifierHash: pedersenHash(deposit.nullifier.leInt2Buff(31))
+                .babyJubX,
+            nullifier: deposit.nullifier,
+            secret: deposit.secret,
+            path_elements: merkleProof[0],
+            path_index: merkleProof[1],
+        }
+
+        const userKeypair = new Keypair()
+        const userPubKey = userKeypair.pubKey.asContractParam()
+
+        const formattedProof = await genProofAndPublicSignals(
+            input,
+            'prod/vote.circom',
+            'build/vote.zkey',
+            'circuits/vote.wasm'
+        )
+
+        const voter = '0xC5fdf4076b8F3A5357c5E395ab970B5B54098Fef'
+
+        const data = {
+            root: toHex(input.root),
+            nullifierHash: toHex(input.nullifierHash),
+            userPubKey,
+            formattedProof,
+            voter,
+        }
+        const r = await post('zkcream/signup/' + zkCreamAddress, data)
+        expect(r.data.status).toBeTruthy()
+
+        // voter owns signUp token
+        const r2 = await get('zkcream/' + zkCreamAddress + '/' + voter)
+        expect(r2.data[1]).toEqual(1)
     })
 
     afterAll(async () => {

@@ -35,6 +35,7 @@ class CreamController implements IController {
             .get('/:address/:voter', this.hasToken.bind(this))
             .get('/faucet/:address/:voter', this.transferToken.bind(this))
             .post('/deposit/:address', this.deposit.bind(this))
+            .post('/signup/:address', this.signup.bind(this))
     }
 
     private getLogs = async (ctx: Koa.Context) => {
@@ -167,6 +168,35 @@ class CreamController implements IController {
         await votingTokenInstance.setApprovalForAll(creamAddress, true)
 
         const tx = await creamInstance.deposit(commitment)
+        const r = await tx.wait()
+        ctx.body = r
+    }
+
+    private signup = async (ctx: Koa.Context) => {
+        const creamAddress = ctx.params.address
+        const {
+            userPubKey,
+            formattedProof,
+            voter,
+            root,
+            nullifierHash,
+        } = ctx.request.body
+
+        const signer = this.provider.getSigner(voter)
+
+        const creamInstance = new ethers.Contract(
+            creamAddress,
+            creamAbi,
+            signer
+        )
+
+        const args = [root, nullifierHash]
+
+        const tx = await creamInstance.signUpMaci(
+            userPubKey,
+            formattedProof,
+            ...args
+        )
         const r = await tx.wait()
         ctx.body = r
     }
