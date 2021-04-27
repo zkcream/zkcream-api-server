@@ -144,6 +144,9 @@ class CreamController implements IController {
         ctx.body = arr
     }
 
+    /*
+     @return - object transaction result with event args
+   */
     private deposit = async (ctx: Koa.Context) => {
         const creamAddress = ctx.params.address
         const { commitment, voter } = ctx.request.body
@@ -172,6 +175,9 @@ class CreamController implements IController {
         ctx.body = r
     }
 
+    /*
+     @return - object transaction result
+   */
     private signup = async (ctx: Koa.Context) => {
         const creamAddress = ctx.params.address
         const {

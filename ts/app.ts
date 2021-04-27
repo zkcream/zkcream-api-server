@@ -5,6 +5,7 @@ import CreamController from './controller/cream'
 import EchoController from './controller/echo'
 import FactoryController from './controller/factory'
 import IpfsController from './controller/ipfs'
+import MaciController from './controller/maci'
 import { middlewares } from './middlewares'
 
 class App {
@@ -45,6 +46,7 @@ class App {
         this.app.use(CreamController.routes())
         this.app.use(EchoController.routes())
         this.app.use(FactoryController.routes())
+        this.app.use(MaciController.routes())
         this.app.use(IpfsController.routes())
     }
 }

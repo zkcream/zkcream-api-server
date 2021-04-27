@@ -1,12 +1,17 @@
 jest.setTimeout(50000)
 
+import * as ethers from 'ethers'
+
 import {
     createDeposit,
+    createMessage,
     generateMerkleProof,
     pedersenHash,
     rbigInt,
     toHex,
 } from 'libcream'
+
+import { genRandomSalt } from 'maci-crypto'
 import { Keypair, PrivKey } from 'maci-domainobjs'
 
 import app from '../app'
@@ -16,11 +21,14 @@ import { genProofAndPublicSignals, get, post } from './utils'
 const port = config.server.port
 const coordinatorPrivKey = config.maci.coordinatorPrivKey
 const coordinator = new Keypair(new PrivKey(BigInt(coordinatorPrivKey)))
+const voiceCredits = ethers.BigNumber.from(2)
 
-let server
-let election
-let zkCreamAddress
 let deposit
+let election
+let nonce
+let server
+let userKeypair
+let zkCreamAddress
 
 describe('Cream contract interaction API', () => {
     beforeAll(async () => {
@@ -133,7 +141,7 @@ describe('Cream contract interaction API', () => {
             path_index: merkleProof[1],
         }
 
-        const userKeypair = new Keypair()
+        userKeypair = new Keypair()
         const userPubKey = userKeypair.pubKey.asContractParam()
 
         const formattedProof = await genProofAndPublicSignals(
@@ -158,6 +166,33 @@ describe('Cream contract interaction API', () => {
         // voter owns signUp token
         const r2 = await get('zkcream/' + zkCreamAddress + '/' + voter)
         expect(r2.data[1]).toEqual(1)
+    })
+
+    test('POST /maci/publish/:address -> should be able to publish message', async () => {
+        const voteIndex = 0
+        const voter = '0xC5fdf4076b8F3A5357c5E395ab970B5B54098Fef'
+        nonce = 1
+        let [message, encPubKey] = createMessage(
+            BigInt(1),
+            userKeypair,
+            null,
+            coordinator.pubKey,
+            BigInt(voteIndex),
+            voiceCredits,
+            BigInt(nonce),
+            genRandomSalt()
+        )
+
+        const data = {
+            message: message.asContractParam(),
+            encPubKey: encPubKey.asContractParam(),
+            voter,
+        }
+
+        const r = await post('maci/publish/' + zkCreamAddress, data)
+        expect(r.data.events[r.data.events.length - 1].event).toEqual(
+            'PublishMessage'
+        )
     })
 
     afterAll(async () => {
