@@ -77,11 +77,19 @@ describe('Cream contract interaction API', () => {
         expect(deployedHash).toEqual(hash.data.path)
     })
 
+    // TODO: Need to fetch more contract details such as #of deposit token, aprooved, maci address and tallyHash etc
     test('GET /zkcream/:address -> should return contract details', async () => {
         const logs = await get('factory/logs')
         zkCreamAddress = logs.data[logs.data.length - 1][0] // get last deployed address
         const r = await get('zkcream/' + zkCreamAddress)
-        expect(r.data).toEqual(election)
+        election.approved = false
+        election.tallyHash = ''
+        election.maciAddress = null
+        for (let prop in election) {
+            if (prop != 'maciAddress') {
+                expect(r.data.prop).toEqual(election.prop)
+            }
+        }
     })
 
     // TODO: Need authentication for voter's address

@@ -68,15 +68,28 @@ class CreamController implements IController {
      @return - object election details from ipfs hash
    */
     private getDetails = async (ctx: Koa.Context) => {
-        const contractAddress = ctx.params.address
+        const creamAddress = ctx.params.address
 
         // get the whole zkcream deployed logs
         const url = 'http://localhost:' + port + '/factory/logs'
         const r = await axios.get(url)
 
-        const ipfsHash = findHash(contractAddress, r.data)
+        const ipfsHash = findHash(creamAddress, r.data)
         const url2 = 'http://localhost:' + port + '/ipfs/' + ipfsHash
         const r2 = await axios.get(url2)
+
+        const creamInstance = new ethers.Contract(
+            creamAddress,
+            creamAbi,
+            this.signer
+        )
+
+        const approved = await creamInstance.approved()
+        const tallyHash = await creamInstance.tallyHash()
+        const maciAddress = await creamInstance.maci()
+        r2.data.approved = approved
+        r2.data.tallyHash = tallyHash
+        r2.data.maciAddress = maciAddress
         ctx.body = r2.data
     }
 
