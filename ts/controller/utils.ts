@@ -1,5 +1,7 @@
 import * as fs from 'fs'
 import * as path from 'path'
+import * as ethers from 'ethers'
+import { StateLeaf } from 'maci-domainobjs'
 
 export const deployModules = async (
     votingToken,
@@ -25,4 +27,11 @@ export const loadAbi = (name: string): string => {
     return JSON.parse(
         fs.readFileSync(path.join(__dirname, '../../abis', name)).toString()
     )
+}
+
+export const genRandomStateLeaf = async (
+    maciState: any,
+    maciInstance: ethers.Contract
+) => {
+    let randomStateLeaf
 }

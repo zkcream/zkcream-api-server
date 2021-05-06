@@ -20,6 +20,7 @@ import { genProofAndPublicSignals, get, post } from './utils'
 
 const port = config.server.port
 const coordinatorPrivKey = config.maci.coordinatorPrivKey
+const coordinatorAddress = '0xf17f52151EbEF6C7334FAD080c5704D77216b732'
 const coordinator = new Keypair(new PrivKey(BigInt(coordinatorPrivKey)))
 const voiceCredits = ethers.BigNumber.from(2)
 
@@ -29,6 +30,7 @@ let nonce
 let server
 let userKeypair
 let zkCreamAddress
+let maciAddress
 
 describe('Cream contract interaction API', () => {
     beforeAll(async () => {
@@ -185,6 +187,12 @@ describe('Cream contract interaction API', () => {
     /* =======================================================
      * MACI part test
      */
+    test('GET /maci/address/:address -> should return maci contract address', async () => {
+        const r = await get('maci/address/' + zkCreamAddress)
+        maciAddress = r.data
+        expect(maciAddress).not.toEqual(zkCreamAddress)
+    })
+
     test('POST /maci/publish/:address -> should be able to publish message', async () => {
         const voteIndex = 0
         const voter = '0xC5fdf4076b8F3A5357c5E395ab970B5B54098Fef'
@@ -206,7 +214,7 @@ describe('Cream contract interaction API', () => {
             voter,
         }
 
-        const r = await post('maci/publish/' + zkCreamAddress, data)
+        const r = await post('maci/publish/' + maciAddress, data)
         expect(r.data.events[r.data.events.length - 1].event).toEqual(
             'PublishMessage'
         )
@@ -232,10 +240,38 @@ describe('Cream contract interaction API', () => {
             encPubKey: encPubKey.asContractParam(),
             voter,
         }
-        const r = await post('maci/publish/' + zkCreamAddress, data)
+        const r = await post('maci/publish/' + maciAddress, data)
         expect(r.data.events[r.data.events.length - 1].event).toEqual(
             'PublishMessage'
         )
+    })
+
+    test('GET /maci/params/:address -> should return maci params for generating maci state', async () => {
+        const r = await get('maci/params/' + maciAddress)
+
+        const {
+            stateTreeDepth,
+            messageTreeDepth,
+            voteOptionTreeDepth,
+            maxVoteOptionIndex,
+            signUpLogs,
+            publishMessageLogs,
+        } = r.data
+
+        expect(stateTreeDepth).toEqual('4')
+        expect(messageTreeDepth).toEqual('4')
+        expect(voteOptionTreeDepth).toEqual('2')
+        expect(maxVoteOptionIndex).toEqual('3')
+        expect(signUpLogs.length > 0).toBeTruthy()
+        expect(signUpLogs.length > 0).toBeTruthy()
+    })
+
+    test('POST /maci/process/:address -> should be able to process message', async () => {
+        const data = {
+            coordinator: coordinatorAddress,
+        }
+        const r = await post('maci/process/' + maciAddress, data)
+        expect(r.data).toEqual('foo')
     })
 
     afterAll(async () => {
