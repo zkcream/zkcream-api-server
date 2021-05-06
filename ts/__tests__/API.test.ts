@@ -212,6 +212,32 @@ describe('Cream contract interaction API', () => {
         )
     })
 
+    test('POST /maci/publish/:address -> should also be able to publish keychange message', async () => {
+        const voteIndex = 0
+        const voter = '0xC5fdf4076b8F3A5357c5E395ab970B5B54098Fef'
+        nonce = 1
+        const newUserKeyPair = new Keypair()
+        let [message, encPubKey] = createMessage(
+            BigInt(1),
+            userKeypair,
+            newUserKeyPair,
+            coordinator.pubKey,
+            null,
+            null,
+            BigInt(nonce)
+        )
+
+        const data = {
+            message: message.asContractParam(),
+            encPubKey: encPubKey.asContractParam(),
+            voter,
+        }
+        const r = await post('maci/publish/' + zkCreamAddress, data)
+        expect(r.data.events[r.data.events.length - 1].event).toEqual(
+            'PublishMessage'
+        )
+    })
+
     afterAll(async () => {
         server.close()
     })
