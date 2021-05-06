@@ -26,23 +26,8 @@ class MaciController implements IController {
             '/publish/:address',
             this.publishMessage.bind(this)
         )
-            .get('/address/:address', this.getAddress.bind(this))
             .get('/params/:address', this.getParamsForMaciState.bind(this))
             .post('/process/:address', this.generateProofs.bind(this))
-    }
-
-    private getAddress = async (ctx: Koa.Context) => {
-        const creamAddress = ctx.params.address
-
-        const creamInstance = new ethers.Contract(
-            creamAddress,
-            creamAbi,
-            this.signer
-        )
-
-        const r = await creamInstance.maci()
-
-        ctx.body = r
     }
 
     private publishMessage = async (ctx: Koa.Context) => {

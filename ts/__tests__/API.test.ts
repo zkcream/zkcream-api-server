@@ -93,6 +93,8 @@ describe('Cream contract interaction API', () => {
         election.approved = false
         election.tallyHash = ''
         election.maciAddress = null
+
+        maciAddress = r.data['maciAddress']
         for (let prop in election) {
             if (prop != 'maciAddress') {
                 expect(r.data.prop).toEqual(election.prop)
@@ -187,12 +189,6 @@ describe('Cream contract interaction API', () => {
     /* =======================================================
      * MACI part test
      */
-    test('GET /maci/address/:address -> should return maci contract address', async () => {
-        const r = await get('maci/address/' + zkCreamAddress)
-        maciAddress = r.data
-        expect(maciAddress).not.toEqual(zkCreamAddress)
-    })
-
     test('POST /maci/publish/:address -> should be able to publish message', async () => {
         const voteIndex = 0
         const voter = '0xC5fdf4076b8F3A5357c5E395ab970B5B54098Fef'
