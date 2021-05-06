@@ -35,6 +35,9 @@ describe('Cream contract interaction API', () => {
         server = app.listen(port)
     })
 
+    /* =======================================================
+     * Factory part test
+     */
     test('GET /factory/logs -> should return deployed zkcream contracts', async () => {
         const r = await get('factory/logs')
 
@@ -77,7 +80,10 @@ describe('Cream contract interaction API', () => {
         expect(deployedHash).toEqual(hash.data.path)
     })
 
-    // TODO: Need to fetch more contract details such as #of deposit token, aprooved, maci address and tallyHash etc
+    /* =======================================================
+     * Cream part test
+     */
+    // TODOp: Need to fetch more contract details such as #of deposit token, aprooved, maci address and tallyHash etc
     test('GET /zkcream/:address -> should return contract details', async () => {
         const logs = await get('factory/logs')
         zkCreamAddress = logs.data[logs.data.length - 1][0] // get last deployed address
@@ -176,6 +182,9 @@ describe('Cream contract interaction API', () => {
         expect(r2.data[1]).toEqual(1)
     })
 
+    /* =======================================================
+     * MACI part test
+     */
     test('POST /maci/publish/:address -> should be able to publish message', async () => {
         const voteIndex = 0
         const voter = '0xC5fdf4076b8F3A5357c5E395ab970B5B54098Fef'
