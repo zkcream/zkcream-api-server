@@ -262,14 +262,6 @@ describe('Cream contract interaction API', () => {
         expect(signUpLogs.length > 0).toBeTruthy()
     })
 
-    test('POST /maci/process/:address -> should be able to process message', async () => {
-        const data = {
-            coordinator: coordinatorAddress,
-        }
-        const r = await post('maci/process/' + maciAddress, data)
-        expect(r.data).toEqual('foo')
-    })
-
     afterAll(async () => {
         server.close()
     })

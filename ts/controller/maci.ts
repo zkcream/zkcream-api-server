@@ -4,7 +4,7 @@ import Koa from 'koa'
 
 import config from '../config'
 import { IController } from './interface'
-import { loadAbi, genRandomStateLeaf } from './utils'
+import { loadAbi } from './utils'
 
 const creamAbi = loadAbi('Cream.abi')
 const maciAbi = loadAbi('Maci.abi')
@@ -25,9 +25,7 @@ class MaciController implements IController {
         return this.Router.post(
             '/publish/:address',
             this.publishMessage.bind(this)
-        )
-            .get('/params/:address', this.getParamsForMaciState.bind(this))
-            .post('/process/:address', this.generateProofs.bind(this))
+        ).get('/params/:address', this.getParamsForMaciState.bind(this))
     }
 
     private publishMessage = async (ctx: Koa.Context) => {
@@ -81,25 +79,6 @@ class MaciController implements IController {
         }
 
         ctx.body = data
-    }
-
-    private generateProofs = async (ctx: Koa.Context) => {
-        const maciAddress = ctx.params.address
-
-        const { coordinator } = ctx.request.body
-
-        const signer = this.provider.getSigner(coordinator)
-
-        const maciInstance = new ethers.Contract(maciAddress, maciAbi, signer)
-
-        // TODO
-        const maciState = ''
-        const randomStateLeaf = await genRandomStateLeaf(
-            maciState,
-            maciInstance
-        )
-        const tally = 'foo'
-        ctx.body = tally
     }
 }
 

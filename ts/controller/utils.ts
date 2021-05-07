@@ -28,10 +28,3 @@ export const loadAbi = (name: string): string => {
         fs.readFileSync(path.join(__dirname, '../../abis', name)).toString()
     )
 }
-
-export const genRandomStateLeaf = async (
-    maciState: any,
-    maciInstance: ethers.Contract
-) => {
-    let randomStateLeaf
-}
