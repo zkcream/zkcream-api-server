@@ -266,8 +266,12 @@ describe('Cream contract interaction API', () => {
      * Finalizing part test
      */
     test('POST /cream/publish/:address -> should be able to publish tally', async () => {
-        const tally = 'test_tally'
-        const r_hash = await post('ipfs', tally)
+        const result = {
+            results: {
+                tally: ['1', '0', '0'],
+            },
+        }
+        const r_hash = await post('ipfs', result)
 
         const data = {
             hash: r_hash.data.path,
@@ -277,8 +281,12 @@ describe('Cream contract interaction API', () => {
         const r = await post('zkcream/publish/' + zkCreamAddress, data)
         expect(r.data.events[0].event).toEqual('TallyPublished')
 
-        expect(r.data.events[0].args[0]).toEqual(data.hash)
+        const r2 = await get('zkcream/' + zkCreamAddress)
+        const r2_obj = await get('ipfs/' + r2.data.tallyHash)
+        expect(r2_obj.data).toEqual(result)
     })
+
+    test('POST /cream/approve/:address -> should be able to approve', async () => {})
 
     afterAll(async () => {
         server.close()
