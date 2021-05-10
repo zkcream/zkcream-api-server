@@ -37,6 +37,7 @@ class CreamController implements IController {
             .post('/deposit/:address', this.deposit.bind(this))
             .post('/signup/:address', this.signup.bind(this))
             .post('/publish/:address', this.publish.bind(this))
+            .post('/approve/:address', this.approve.bind(this))
     }
 
     private getLogs = async (ctx: Koa.Context) => {
@@ -240,6 +241,23 @@ class CreamController implements IController {
         )
 
         const tx = await creamInstance.publishTallyHash(hash)
+        const r = await tx.wait()
+        ctx.body = r
+    }
+
+    /*
+  @return object transaction result
+   */
+    private approve = async (ctx: Koa.Context) => {
+        const creamAddress = ctx.params.address
+        const { owner } = ctx.request.body
+        const signer = this.provider.getSigner(owner)
+        const creamInstance = new ethers.Contract(
+            creamAddress,
+            creamAbi,
+            signer
+        )
+        const tx = await creamInstance.approveTally()
         const r = await tx.wait()
         ctx.body = r
     }

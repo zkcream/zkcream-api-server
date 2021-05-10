@@ -265,7 +265,7 @@ describe('Cream contract interaction API', () => {
     /* =======================================================
      * Finalizing part test
      */
-    test('POST /cream/publish/:address -> should be able to publish tally', async () => {
+    test('POST /zkcream/publish/:address -> should be able to publish tally', async () => {
         const result = {
             results: {
                 tally: ['1', '0', '0'],
@@ -286,7 +286,14 @@ describe('Cream contract interaction API', () => {
         expect(r2_obj.data).toEqual(result)
     })
 
-    test('POST /cream/approve/:address -> should be able to approve', async () => {})
+    test('POST /zkcream/approve/:address -> should be able to approve', async () => {
+        const data = {
+            owner: '0x627306090abaB3A6e1400e9345bC60c78a8BEf57',
+        }
+
+        const r = await post('zkcream/approve/' + zkCreamAddress, data)
+        expect(r.data.events[0].event).toEqual('TallyApproved')
+    })
 
     afterAll(async () => {
         server.close()
