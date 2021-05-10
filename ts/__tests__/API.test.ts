@@ -262,6 +262,24 @@ describe('Cream contract interaction API', () => {
         expect(signUpLogs.length > 0).toBeTruthy()
     })
 
+    /* =======================================================
+     * Finalizing part test
+     */
+    test('POST /cream/publish/:address -> should be able to publish tally', async () => {
+        const tally = 'test_tally'
+        const r_hash = await post('ipfs', tally)
+
+        const data = {
+            hash: r_hash.data.path,
+            coordinator: coordinatorAddress,
+        }
+
+        const r = await post('zkcream/publish/' + zkCreamAddress, data)
+        expect(r.data.events[0].event).toEqual('TallyPublished')
+
+        expect(r.data.events[0].args[0]).toEqual(data.hash)
+    })
+
     afterAll(async () => {
         server.close()
     })
