@@ -38,6 +38,7 @@ class CreamController implements IController {
             .post('/signup/:address', this.signup.bind(this))
             .post('/publish/:address', this.publish.bind(this))
             .post('/approve/:address', this.approve.bind(this))
+            .post('/withdraw/:address', this.withdraw.bind(this))
     }
 
     private getLogs = async (ctx: Koa.Context) => {
@@ -259,6 +260,42 @@ class CreamController implements IController {
         )
         const tx = await creamInstance.approveTally()
         const r = await tx.wait()
+        ctx.body = r
+    }
+
+    /*
+  @return object transaction result
+   */
+    private withdraw = async (ctx: Koa.Context) => {
+        const creamAddress = ctx.params.address
+        const { coordinator } = ctx.request.body
+
+        const signer = this.provider.getSigner(coordinator)
+
+        const creamInstance = new ethers.Contract(
+            creamAddress,
+            creamAbi,
+            signer
+        )
+
+        const hash = await creamInstance.tallyHash()
+        const recipients = await creamInstance.getRecipients()
+
+        const url = 'http://localhost:' + port + '/ipfs/' + hash
+        const r_tally = await axios.get(url)
+        const resultsArr = r_tally.data.results.tally
+
+        const r: any[] = []
+        for (let i = 0; i < recipients.length; i++) {
+            const count = resultsArr[i]
+            for (let j = 0; j < count; j++) {
+                const tx = await creamInstance.withdraw(i)
+                if (tx) {
+                    r.push(await tx.wait())
+                }
+            }
+        }
+
         ctx.body = r
     }
 }

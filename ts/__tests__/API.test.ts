@@ -268,7 +268,7 @@ describe('Cream contract interaction API', () => {
     test('POST /zkcream/publish/:address -> should be able to publish tally', async () => {
         const result = {
             results: {
-                tally: ['1', '0', '0'],
+                tally: ['1', '0'],
             },
         }
         const r_hash = await post('ipfs', result)
@@ -293,6 +293,23 @@ describe('Cream contract interaction API', () => {
 
         const r = await post('zkcream/approve/' + zkCreamAddress, data)
         expect(r.data.events[0].event).toEqual('TallyApproved')
+    })
+
+    test('POST /zkcream/withdraw/:address -> should be able to withdraw', async () => {
+        const data = {
+            coordinator: coordinatorAddress,
+        }
+
+        const r = await post('zkcream/withdraw/' + zkCreamAddress, data)
+        expect(r.data[0].events[r.data[0].events.length - 1].event).toEqual(
+            'Withdrawal'
+        )
+
+        // check if recipients received a token
+        const r2 = await get(
+            'zkcream/' + zkCreamAddress + '/' + election.recipients[0]
+        )
+        expect(r2.data[0]).toEqual(1)
     })
 
     afterAll(async () => {
