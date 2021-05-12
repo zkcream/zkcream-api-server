@@ -4,16 +4,16 @@ import Koa from 'koa'
 
 import config from '../config'
 import { IController } from './interface'
-import { deployModules, loadAbi } from './utils'
+import { deployModules } from './utils'
 
 import C_Verifier from '../../abis/CreamVerifier.json'
 import S_Token from '../../abis/SignUpToken.json'
 import V_Token from '../../abis/VotingToken.json'
 
 const maciFactoryAddress = config.eth.contracts.maciFactory
-const maciFactoryAbi = loadAbi('MaciFactory.abi')
-const creamFactoryAbi = loadAbi('CreamFactory.abi')
-const creamAbi = loadAbi('Cream.abi')
+import Cream from '../../abis/Cream.json'
+import CreamFactory from '../../abis/CreamFactory.json'
+import MACIFactory from '../../abis/MACIFactory.json'
 
 const port = config.server.port
 
@@ -36,13 +36,13 @@ class FactoryController implements IController {
         this.creamFactoryAddress = config.eth.contracts.creamFactory
         this.creamFactoryInstance = new ethers.Contract(
             this.creamFactoryAddress,
-            creamFactoryAbi,
+            CreamFactory.abi,
             this.signer
         )
 
         this.maciFactoryInstance = new ethers.Contract(
             maciFactoryAddress,
-            maciFactoryAbi,
+            MACIFactory.abi,
             this.signer
         )
 
@@ -86,8 +86,9 @@ class FactoryController implements IController {
             })
         } catch (e) {
             if (e.message === `Cannot read property 'getLogs' of null`) {
-                logs = []
-                ctx.body = logs
+                ctx.body = {
+                    message: e.message,
+                }
             } else {
                 ctx.throw(e)
                 console.log(e.messsage, e.stack)

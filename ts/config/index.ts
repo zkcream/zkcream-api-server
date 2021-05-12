@@ -7,7 +7,6 @@ if (!process.env.hasOwnProperty('NODE_CONFIG_DIR')) {
 if (!process.env.hasOwnProperty('NODE_ENV')) {
     process.env.NODE_ENV = 'test'
 }
-
 import * as config from 'config'
 
 export = config

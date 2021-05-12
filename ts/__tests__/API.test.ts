@@ -43,7 +43,7 @@ describe('Cream contract interaction API', () => {
     test('GET /factory/logs -> should return deployed zkcream contracts', async () => {
         const r = await get('factory/logs')
 
-        // r.data should either empty [] or string[]
+        // r.data should either error object or string[]
         expect('object').toEqual(typeof r.data)
     })
 
@@ -85,7 +85,6 @@ describe('Cream contract interaction API', () => {
     /* =======================================================
      * Cream part test
      */
-    // TODOp: Need to fetch more contract details such as #of deposit token, aprooved, maci address and tallyHash etc
     test('GET /zkcream/:address -> should return contract details', async () => {
         const logs = await get('factory/logs')
         zkCreamAddress = logs.data[logs.data.length - 1][0] // get last deployed address

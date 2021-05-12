@@ -5,12 +5,11 @@ import Koa from 'koa'
 
 import config from '../config'
 import { IController } from './interface'
-import { findHash, loadAbi } from './utils'
+import { findHash } from './utils'
 
 import S_Token from '../../abis/SignUpToken.json'
 import V_Token from '../../abis/VotingToken.json'
-
-const creamAbi = loadAbi('Cream.abi')
+import Cream from '../../abis/Cream.json'
 
 const port = config.server.port
 
@@ -45,7 +44,7 @@ class CreamController implements IController {
         const contractAddress = ctx.params.address
         const creamInstance = new ethers.Contract(
             contractAddress,
-            creamAbi,
+            Cream.abi,
             this.signer
         )
         const eventName: any = 'Deposit'
@@ -83,7 +82,7 @@ class CreamController implements IController {
 
         const creamInstance = new ethers.Contract(
             creamAddress,
-            creamAbi,
+            Cream.abi,
             this.signer
         )
 
@@ -104,7 +103,7 @@ class CreamController implements IController {
         const voter = ctx.params.voter
         const creamInstance = new ethers.Contract(
             creamAddress,
-            creamAbi,
+            Cream.abi,
             this.signer
         )
 
@@ -133,7 +132,7 @@ class CreamController implements IController {
 
         const creamInstance = new ethers.Contract(
             creamAddress,
-            creamAbi,
+            Cream.abi,
             this.provider
         )
 
@@ -174,7 +173,7 @@ class CreamController implements IController {
 
         const creamInstance = new ethers.Contract(
             creamAddress,
-            creamAbi,
+            Cream.abi,
             signer
         )
 
@@ -211,7 +210,7 @@ class CreamController implements IController {
 
         const creamInstance = new ethers.Contract(
             creamAddress,
-            creamAbi,
+            Cream.abi,
             signer
         )
 
@@ -237,7 +236,7 @@ class CreamController implements IController {
 
         const creamInstance = new ethers.Contract(
             creamAddress,
-            creamAbi,
+            Cream.abi,
             signer
         )
 
@@ -255,7 +254,7 @@ class CreamController implements IController {
         const signer = this.provider.getSigner(owner)
         const creamInstance = new ethers.Contract(
             creamAddress,
-            creamAbi,
+            Cream.abi,
             signer
         )
         const tx = await creamInstance.approveTally()
@@ -274,7 +273,7 @@ class CreamController implements IController {
 
         const creamInstance = new ethers.Contract(
             creamAddress,
-            creamAbi,
+            Cream.abi,
             signer
         )
 

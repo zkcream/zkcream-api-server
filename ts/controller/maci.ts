@@ -4,10 +4,9 @@ import Koa from 'koa'
 
 import config from '../config'
 import { IController } from './interface'
-import { loadAbi } from './utils'
 
-const creamAbi = loadAbi('Cream.abi')
-const maciAbi = loadAbi('Maci.abi')
+import Cream from '../../abis/Cream.json'
+import MACI from '../../abis/MACI.json'
 
 class MaciController implements IController {
     private Router = new Router({
@@ -35,7 +34,7 @@ class MaciController implements IController {
 
         const signer = this.provider.getSigner(voter)
 
-        const maciInstance = new ethers.Contract(maciAddress, maciAbi, signer)
+        const maciInstance = new ethers.Contract(maciAddress, MACI.abi, signer)
 
         const tx = await maciInstance.publishMessage(message, encPubKey)
         const r = await tx.wait()
@@ -47,7 +46,7 @@ class MaciController implements IController {
 
         const maciInstance = new ethers.Contract(
             maciAddress,
-            maciAbi,
+            MACI.abi,
             this.signer
         )
 
