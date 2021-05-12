@@ -89,9 +89,18 @@ class CreamController implements IController {
         const approved = await creamInstance.approved()
         const tallyHash = await creamInstance.tallyHash()
         const maciAddress = await creamInstance.maci()
+        const signUpTokenAddress = await creamInstance.signUpToken()
+        const votingTokenAddress = await creamInstance.votingToken()
+        const owner = await creamInstance.owner()
+        const coordinator = await creamInstance.coordinator()
+
         r2.data.approved = approved
         r2.data.tallyHash = tallyHash
         r2.data.maciAddress = maciAddress
+        r2.data.signUpTokenAddress = signUpTokenAddress
+        r2.data.votingTokenAddress = votingTokenAddress
+        r2.data.owner = owner
+        r2.data.coordinator = coordinator
         ctx.body = r2.data
     }
 
