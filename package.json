@@ -8,6 +8,7 @@
     "format": "npx prettier './ts/**/*.{js,ts}' --write",
     "postbuild": "cp ./ts/config/**.yaml ./build/ts/config/",
     "postinstall": "husky install",
+    "start": "nodemon ./build/ts/index.js",
     "test": "npx jest",
     "watch": "tsc --watch"
   },

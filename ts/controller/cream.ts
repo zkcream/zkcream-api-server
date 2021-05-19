@@ -32,7 +32,7 @@ class CreamController implements IController {
         )
             .get('/:address', this.getDetails.bind(this))
             .get('/:address/:voter', this.hasToken.bind(this))
-            .get('/faucet/:address/:voter', this.transferToken.bind(this))
+            .post('/faucet/:address', this.transferToken.bind(this))
             .post('/deposit/:address', this.deposit.bind(this))
             .post('/signup/:address', this.signup.bind(this))
             .post('/publish/:address', this.publish.bind(this))
@@ -109,7 +109,7 @@ class CreamController implements IController {
    */
     private transferToken = async (ctx: Koa.Context) => {
         const creamAddress = ctx.params.address
-        const voter = ctx.params.voter
+        const { voter } = ctx.request.body
         const creamInstance = new ethers.Contract(
             creamAddress,
             Cream.abi,

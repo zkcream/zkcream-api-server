@@ -101,10 +101,13 @@ describe('Cream contract interaction API', () => {
         }
     })
 
-    // TODO: Need authentication for voter's address
-    test('GET /zkcream/faucet/:address/:voter -> should correctly distribute token to voter', async () => {
+    //TODO: Need authentication
+    test('POST /zkcream/faucet/:address -> should correctly distribute token to voter', async () => {
         const voter = '0xC5fdf4076b8F3A5357c5E395ab970B5B54098Fef'
-        const r = await get('zkcream/faucet/' + zkCreamAddress + '/' + voter)
+        const data = {
+            voter,
+        }
+        const r = await post('zkcream/faucet/' + zkCreamAddress, data)
         expect(r.data.status).toBeTruthy()
         expect(r.data.events[r.data.events.length - 1].event).toEqual(
             'Transfer'
