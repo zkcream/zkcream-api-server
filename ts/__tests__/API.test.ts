@@ -18,10 +18,16 @@ import app from '../app'
 import config from '../config'
 import { genProofAndPublicSignals, get, post } from './utils'
 
+import V_Token from '../../abis/VotingToken.json'
+import Cream from '../../abis/Cream.json'
+import MACI from '../../abis/MACI.json'
+
 const port = config.server.port
 const coordinatorPrivKey = config.maci.coordinatorPrivKey
 const coordinatorAddress = '0xf17f52151EbEF6C7334FAD080c5704D77216b732'
 const coordinator = new Keypair(new PrivKey(BigInt(coordinatorPrivKey)))
+const provider = new ethers.providers.JsonRpcProvider(config.eth.url)
+const ownerSigner = new ethers.Wallet(config.eth.adminKey, provider)
 const voiceCredits = ethers.BigNumber.from(2)
 
 let deposit
@@ -30,7 +36,11 @@ let nonce
 let server
 let userKeypair
 let zkCreamAddress
+let zkCreamInstance
 let maciAddress
+let maciInstance
+let voter
+let votingSigner
 
 describe('Cream contract interaction API', () => {
     beforeAll(async () => {
@@ -101,45 +111,49 @@ describe('Cream contract interaction API', () => {
         }
     })
 
-    //TODO: Need authentication
-    test('POST /zkcream/faucet/:address -> should correctly distribute token to voter', async () => {
-        const voter = '0xC5fdf4076b8F3A5357c5E395ab970B5B54098Fef'
-        const data = {
-            voter,
-        }
-        const r = await post('zkcream/faucet/' + zkCreamAddress, data)
-        expect(r.data.status).toBeTruthy()
-        expect(r.data.events[r.data.events.length - 1].event).toEqual(
-            'Transfer'
+    test('GET /zkcream/deposit/logs/:address -> should return deposit events', async () => {
+        // transfer token to voter
+        voter = '0xC5fdf4076b8F3A5357c5E395ab970B5B54098Fef'
+        votingSigner = provider.getSigner(voter)
+
+        zkCreamInstance = new ethers.Contract(
+            zkCreamAddress,
+            Cream.abi,
+            votingSigner
         )
 
-        // check if voter received token
-        const r2 = await get('zkcream/' + zkCreamAddress + '/' + voter)
-        expect(r2.data[0]).toEqual(1)
-    })
+        const votingTokenAddress = await zkCreamInstance.votingToken()
 
-    test('POST /zkcream/deposit/:address -> should correctly deposit voting token', async () => {
-        deposit = createDeposit(rbigInt(31), rbigInt(31))
-        const voter = '0xC5fdf4076b8F3A5357c5E395ab970B5B54098Fef'
-        const data = {
-            commitment: toHex(deposit.commitment),
-            voter,
+        let votingTokenInstance = new ethers.Contract(
+            votingTokenAddress,
+            V_Token.abi,
+            ownerSigner
+        )
+
+        let tx = await votingTokenInstance.giveToken(voter)
+        let r = await tx.wait()
+
+        if (!r.status) {
+            console.error('[giveToken] error')
         }
-        const r = await post('zkcream/deposit/' + zkCreamAddress, data)
-        expect(r.data.status).toBeTruthy()
-        expect(r.data.events[r.data.events.length - 1].event).toEqual('Deposit')
 
-        // check if voter do not onw token any more
-        const r2 = await get('zkcream/' + zkCreamAddress + '/' + voter)
-        expect(r2.data[0]).toEqual(0)
-    })
+        // deposit token
+        deposit = createDeposit(rbigInt(31), rbigInt(31))
+        votingTokenInstance = votingTokenInstance.connect(votingSigner)
+        await votingTokenInstance.setApprovalForAll(zkCreamAddress, true)
 
-    test('GET /zkcream/deposit/logs/:address -> should return deposit events', async () => {
-        const r = await get('zkcream/deposit/logs/' + zkCreamAddress)
+        tx = await zkCreamInstance.deposit(toHex(deposit.commitment))
+        r = await tx.wait()
+
+        if (!r.status) {
+            console.error('[deposit] error')
+        }
+
+        r = await get('zkcream/deposit/logs/' + zkCreamAddress)
         expect(r.data[0][0]).toEqual(toHex(deposit.commitment))
     })
 
-    test('POST /zkcream/signup/:address -> should be able to sign up MACI', async () => {
+    test('should be able to sign up MACI', async () => {
         const params = {
             depth: 4,
             zero_value:
@@ -171,19 +185,19 @@ describe('Cream contract interaction API', () => {
             'circuits/vote.wasm'
         )
 
-        const voter = '0xC5fdf4076b8F3A5357c5E395ab970B5B54098Fef'
+        const args = [toHex(input.root), toHex(input.nullifierHash)]
 
-        const data = {
-            root: toHex(input.root),
-            nullifierHash: toHex(input.nullifierHash),
+        const tx = await zkCreamInstance.signUpMaci(
             userPubKey,
             formattedProof,
-            voter,
-        }
-        const r = await post('zkcream/signup/' + zkCreamAddress, data)
-        expect(r.data.status).toBeTruthy()
+            ...args
+        )
+        const r = await tx.wait()
+
+        expect(r.status).toBeTruthy()
 
         // voter owns signUp token
+        const voter = '0xC5fdf4076b8F3A5357c5E395ab970B5B54098Fef'
         const r2 = await get('zkcream/' + zkCreamAddress + '/' + voter)
         expect(r2.data[1]).toEqual(1)
     })
@@ -191,7 +205,7 @@ describe('Cream contract interaction API', () => {
     /* =======================================================
      * MACI part test
      */
-    test('POST /maci/publish/:address -> should be able to publish message', async () => {
+    test('GET /maci/params/:address -> should return maci params for generating maci state', async () => {
         const voteIndex = 0
         const voter = '0xC5fdf4076b8F3A5357c5E395ab970B5B54098Fef'
         nonce = 1
@@ -206,46 +220,29 @@ describe('Cream contract interaction API', () => {
             genRandomSalt()
         )
 
-        const data = {
-            message: message.asContractParam(),
-            encPubKey: encPubKey.asContractParam(),
-            voter,
-        }
+        maciInstance = new ethers.Contract(maciAddress, MACI.abi, votingSigner)
 
-        const r = await post('maci/publish/' + maciAddress, data)
-        expect(r.data.events[r.data.events.length - 1].event).toEqual(
-            'PublishMessage'
+        const tx = await maciInstance.publishMessage(
+            message.asContractParam(),
+            encPubKey.asContractParam()
         )
-    })
+        let r = await tx.wait()
+        expect(r.events[r.events.length - 1].event).toEqual('PublishMessage')
 
-    test('POST /maci/publish/:address -> should also be able to publish keychange message', async () => {
-        const voteIndex = 0
-        const voter = '0xC5fdf4076b8F3A5357c5E395ab970B5B54098Fef'
-        nonce = 1
-        const newUserKeyPair = new Keypair()
-        let [message, encPubKey] = createMessage(
-            BigInt(1),
-            userKeypair,
-            newUserKeyPair,
-            coordinator.pubKey,
-            null,
-            null,
-            BigInt(nonce)
-        )
+        // key change message
 
-        const data = {
-            message: message.asContractParam(),
-            encPubKey: encPubKey.asContractParam(),
-            voter,
-        }
-        const r = await post('maci/publish/' + maciAddress, data)
-        expect(r.data.events[r.data.events.length - 1].event).toEqual(
-            'PublishMessage'
-        )
-    })
+        // const newUserKeyPair = new Keypair()
+        // let [message, encPubKey] = createMessage(
+        //   BigInt(1),
+        //   userKeypair,
+        //   newUserKeyPair,
+        //   coordinator.pubKey,
+        //   null,
+        //   null,
+        //   BigInt(nonce)
+        // )
 
-    test('GET /maci/params/:address -> should return maci params for generating maci state', async () => {
-        const r = await get('maci/params/' + maciAddress)
+        r = await get('maci/params/' + maciAddress)
 
         const {
             stateTreeDepth,
@@ -267,7 +264,7 @@ describe('Cream contract interaction API', () => {
     /* =======================================================
      * Finalizing part test
      */
-    test('POST /zkcream/publish/:address -> should be able to publish tally', async () => {
+    test('should be able to publish tally', async () => {
         const result = {
             results: {
                 tally: ['1', '0'],
@@ -275,13 +272,13 @@ describe('Cream contract interaction API', () => {
         }
         const r_hash = await post('ipfs', result)
 
-        const data = {
-            hash: r_hash.data.path,
-            coordinator: coordinatorAddress,
-        }
+        const coordinatorSigner = provider.getSigner(coordinatorAddress)
+        zkCreamInstance = zkCreamInstance.connect(coordinatorSigner)
 
-        const r = await post('zkcream/publish/' + zkCreamAddress, data)
-        expect(r.data.events[0].event).toEqual('TallyPublished')
+        const tx = await zkCreamInstance.publishTallyHash(r_hash.data.path)
+        const r = await tx.wait()
+
+        expect(r.events[0].event).toEqual('TallyPublished')
 
         const r2 = await get('zkcream/' + zkCreamAddress)
         const r2_obj = await get('ipfs/' + r2.data.tallyHash)
@@ -297,15 +294,27 @@ describe('Cream contract interaction API', () => {
         expect(r.data.events[0].event).toEqual('TallyApproved')
     })
 
-    test('POST /zkcream/withdraw/:address -> should be able to withdraw', async () => {
+    test('should be able to withdraw', async () => {
         const data = {
             coordinator: coordinatorAddress,
         }
 
-        const r = await post('zkcream/withdraw/' + zkCreamAddress, data)
-        expect(r.data[0].events[r.data[0].events.length - 1].event).toEqual(
-            'Withdrawal'
-        )
+        const hash = await zkCreamInstance.tallyHash()
+        const recipients = await zkCreamInstance.getRecipients()
+
+        const url = 'http://localhost:' + port + '/ipfs/' + hash
+        const r_tally = await get('ipfs/' + hash)
+        const resultsArr = r_tally.data.results.tally
+
+        for (let i = 0; i < recipients.length; i++) {
+            const count = resultsArr[i]
+            for (let j = 0; j < count; j++) {
+                const tx = await zkCreamInstance.withdraw(i)
+                if (tx) {
+                    await tx.wait()
+                }
+            }
+        }
 
         // check if recipients received a token
         const r2 = await get(

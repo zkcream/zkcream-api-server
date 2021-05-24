@@ -21,24 +21,10 @@ class MaciController implements IController {
     }
 
     public router = (): Router => {
-        return this.Router.post(
-            '/publish/:address',
-            this.publishMessage.bind(this)
-        ).get('/params/:address', this.getParamsForMaciState.bind(this))
-    }
-
-    private publishMessage = async (ctx: Koa.Context) => {
-        const maciAddress = ctx.params.address
-
-        const { message, encPubKey, voter } = ctx.request.body
-
-        const signer = this.provider.getSigner(voter)
-
-        const maciInstance = new ethers.Contract(maciAddress, MACI.abi, signer)
-
-        const tx = await maciInstance.publishMessage(message, encPubKey)
-        const r = await tx.wait()
-        ctx.body = r
+        return this.Router.get(
+            '/params/:address',
+            this.getParamsForMaciState.bind(this)
+        )
     }
 
     private getParamsForMaciState = async (ctx: Koa.Context) => {

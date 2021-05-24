@@ -32,12 +32,8 @@ class CreamController implements IController {
         )
             .get('/:address', this.getDetails.bind(this))
             .get('/:address/:voter', this.hasToken.bind(this))
-            .post('/faucet/:address', this.transferToken.bind(this))
-            .post('/deposit/:address', this.deposit.bind(this))
-            .post('/signup/:address', this.signup.bind(this))
             .post('/publish/:address', this.publish.bind(this))
             .post('/approve/:address', this.approve.bind(this))
-            .post('/withdraw/:address', this.withdraw.bind(this))
     }
 
     private getLogs = async (ctx: Koa.Context) => {
@@ -105,32 +101,6 @@ class CreamController implements IController {
     }
 
     /*
-     @return - boolean transaction status
-   */
-    private transferToken = async (ctx: Koa.Context) => {
-        const creamAddress = ctx.params.address
-        const { voter } = ctx.request.body
-        const creamInstance = new ethers.Contract(
-            creamAddress,
-            Cream.abi,
-            this.signer
-        )
-
-        const votingTokenAddress = await creamInstance.votingToken()
-
-        const votingTokenInstance = new ethers.Contract(
-            votingTokenAddress,
-            V_Token.abi,
-            this.signer
-        )
-
-        const tx = await votingTokenInstance.giveToken(voter)
-        const r = await tx.wait()
-
-        ctx.body = r
-    }
-
-    /*
      @return - number[] number of tokens voter own
                         TODO: should return false if voter own > 1
    */
@@ -172,69 +142,6 @@ class CreamController implements IController {
     }
 
     /*
-     @return - object transaction result with event args
-   */
-    private deposit = async (ctx: Koa.Context) => {
-        const creamAddress = ctx.params.address
-        const { commitment, voter } = ctx.request.body
-
-        const signer = this.provider.getSigner(voter)
-
-        const creamInstance = new ethers.Contract(
-            creamAddress,
-            Cream.abi,
-            signer
-        )
-
-        const votingTokenAddress = await creamInstance.votingToken()
-
-        // approval
-        const votingTokenInstance = new ethers.Contract(
-            votingTokenAddress,
-            V_Token.abi,
-            signer
-        )
-
-        await votingTokenInstance.setApprovalForAll(creamAddress, true)
-
-        const tx = await creamInstance.deposit(commitment)
-        const r = await tx.wait()
-        ctx.body = r
-    }
-
-    /*
-     @return - object transaction result
-   */
-    private signup = async (ctx: Koa.Context) => {
-        const creamAddress = ctx.params.address
-        const {
-            userPubKey,
-            formattedProof,
-            voter,
-            root,
-            nullifierHash,
-        } = ctx.request.body
-
-        const signer = this.provider.getSigner(voter)
-
-        const creamInstance = new ethers.Contract(
-            creamAddress,
-            Cream.abi,
-            signer
-        )
-
-        const args = [root, nullifierHash]
-
-        const tx = await creamInstance.signUpMaci(
-            userPubKey,
-            formattedProof,
-            ...args
-        )
-        const r = await tx.wait()
-        ctx.body = r
-    }
-
-    /*
    @return object transaction result
    */
     private publish = async (ctx: Koa.Context) => {
@@ -268,42 +175,6 @@ class CreamController implements IController {
         )
         const tx = await creamInstance.approveTally()
         const r = await tx.wait()
-        ctx.body = r
-    }
-
-    /*
-  @return object transaction result
-   */
-    private withdraw = async (ctx: Koa.Context) => {
-        const creamAddress = ctx.params.address
-        const { coordinator } = ctx.request.body
-
-        const signer = this.provider.getSigner(coordinator)
-
-        const creamInstance = new ethers.Contract(
-            creamAddress,
-            Cream.abi,
-            signer
-        )
-
-        const hash = await creamInstance.tallyHash()
-        const recipients = await creamInstance.getRecipients()
-
-        const url = 'http://localhost:' + port + '/ipfs/' + hash
-        const r_tally = await axios.get(url)
-        const resultsArr = r_tally.data.results.tally
-
-        const r: any[] = []
-        for (let i = 0; i < recipients.length; i++) {
-            const count = resultsArr[i]
-            for (let j = 0; j < count; j++) {
-                const tx = await creamInstance.withdraw(i)
-                if (tx) {
-                    r.push(await tx.wait())
-                }
-            }
-        }
-
         ctx.body = r
     }
 }
