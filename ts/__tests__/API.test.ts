@@ -302,7 +302,6 @@ describe('Cream contract interaction API', () => {
         const hash = await zkCreamInstance.tallyHash()
         const recipients = await zkCreamInstance.getRecipients()
 
-        const url = 'http://localhost:' + port + '/ipfs/' + hash
         const r_tally = await get('ipfs/' + hash)
         const resultsArr = r_tally.data.results.tally
 

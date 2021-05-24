@@ -171,7 +171,7 @@ class CreamController implements IController {
         const creamInstance = new ethers.Contract(
             creamAddress,
             Cream.abi,
-            signer
+            this.signer
         )
         const tx = await creamInstance.approveTally()
         const r = await tx.wait()
