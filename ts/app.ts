@@ -1,5 +1,6 @@
 import * as ethers from 'ethers'
 import Koa, { Middleware } from 'koa'
+import cors from '@koa/cors'
 
 import CreamController from './controller/cream'
 import EchoController from './controller/echo'
@@ -14,6 +15,7 @@ class App {
 
     constructor() {
         this.app = new Koa()
+        this.app.use(cors())
         this.middlewares()
         this.routes()
     }
