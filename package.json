@@ -10,6 +10,8 @@
     "postinstall": "husky install",
     "start": "nodemon ./build/ts/index.js",
     "test": "npx jest",
+    "test:server": "npx jest Server.test.ts",
+    "test:api": "npx jest API.test.ts",
     "watch": "tsc --watch"
   },
   "author": "Kazuaki Ishiguro <kazuakiishiguro@protonmail.com>",
