@@ -1,0 +1,32 @@
+---
+env: 'prod'
+
+eth:
+  url:
+  contracts:
+    creamFactory:
+    maciFactory:
+
+  adminKey:
+
+maci:
+  initialVoiceCreditBalance: 100
+  signUpDurationInSeconds: 3600 # 1 hour
+  votingDurationInSeconds: 3600 # 1 hour
+  coordinatorPrivKey:
+  tallyBatchsize: 4
+  messageBatchSize: 4
+  quadVoteTallyBatchSize: 4
+  voteOptionsMaxLeafIndex: 3
+
+  merkleTrees:
+    stateTreeDepth: 4
+    messageTreeDepth: 4
+    voteOptionTreeDepth: 2
+
+ipfs:
+  url:
+
+server:
+  port: 3000
+  host: 'http://localhost:3000'

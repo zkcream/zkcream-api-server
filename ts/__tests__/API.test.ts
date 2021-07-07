@@ -16,7 +16,7 @@ import { Keypair, PrivKey } from 'maci-domainobjs'
 
 import app from '../app'
 import config from '../config'
-import { genProofAndPublicSignals, get, post } from './utils'
+import { get, post } from './utils'
 
 import V_Token from '../../abis/VotingToken.json'
 import Cream from '../../abis/Cream.json'
@@ -175,21 +175,21 @@ describe('Cream contract interaction API', () => {
             path_index: merkleProof[1],
         }
 
+        const data = {
+            input: JSON.stringify(input, (key, value) =>
+                typeof value === 'bigint' ? value.toString() : value
+            ),
+        }
+
+        const formattedProof = await post('zkcream/genproof', data)
+
         userKeypair = new Keypair()
         const userPubKey = userKeypair.pubKey.asContractParam()
-
-        const formattedProof = await genProofAndPublicSignals(
-            input,
-            'prod/vote.circom',
-            'build/vote.zkey',
-            'circuits/vote.wasm'
-        )
-
         const args = [toHex(input.root), toHex(input.nullifierHash)]
 
         const tx = await zkCreamInstance.signUpMaci(
             userPubKey,
-            formattedProof,
+            formattedProof.data,
             ...args
         )
         const r = await tx.wait()

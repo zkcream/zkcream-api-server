@@ -5,7 +5,7 @@ import Koa from 'koa'
 
 import config from '../config'
 import { IController } from './interface'
-import { findHash } from './utils'
+import { findHash, genProofAndPublicSignals } from './utils'
 
 import S_Token from '../../abis/SignUpToken.json'
 import V_Token from '../../abis/VotingToken.json'
@@ -32,6 +32,7 @@ class CreamController implements IController {
         )
             .get('/:address', this.getDetails.bind(this))
             .get('/:address/:voter', this.hasToken.bind(this))
+            .post('/genproof', this.genFormattedProof.bind(this))
             .post('/publish/:address', this.publish.bind(this))
             .post('/approve/:address', this.approve.bind(this))
     }
@@ -139,6 +140,27 @@ class CreamController implements IController {
         )
 
         ctx.body = arr
+    }
+
+    /*
+    @return object formattedProof
+     */
+    private genFormattedProof = async (ctx: Koa.Context) => {
+        const { input } = ctx.request.body
+        const parsedInput = JSON.parse(input, (k, v) =>
+            typeof v === 'string' && v.match(/^[0-9]+n$/)
+                ? BigInt(v.slice(0, -1))
+                : v
+        )
+
+        const r = await genProofAndPublicSignals(
+            parsedInput,
+            'prod/vote.circom',
+            'build/vote.zkey',
+            'circuits/vote.wasm'
+        )
+
+        ctx.body = r
     }
 
     /*
