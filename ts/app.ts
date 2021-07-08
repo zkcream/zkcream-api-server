@@ -1,4 +1,3 @@
-import * as ethers from 'ethers'
 import Koa, { Middleware } from 'koa'
 import cors from '@koa/cors'
 

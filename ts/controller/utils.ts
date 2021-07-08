@@ -1,5 +1,6 @@
 import * as fs from 'fs'
 import * as path from 'path'
+import appRoot from 'app-root-path'
 import * as ethers from 'ethers'
 import { execSync } from 'child_process'
 import { StateLeaf } from 'maci-domainobjs'
@@ -84,8 +85,8 @@ export const genProofAndPublicSignals = async (
     circuit?: any
 ): Promise<FormattedProof<string>> => {
     const creamCircuitsPath = path.join(
-        __dirname,
-        '../../../cream/packages/circuits'
+        appRoot.path,
+        './zkcream/packages/circuits'
     )
 
     const zkeyPath: string = path.join(creamCircuitsPath, zkeyFileName)
