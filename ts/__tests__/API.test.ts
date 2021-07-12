@@ -113,11 +113,18 @@ describe('Cream contract interaction API', () => {
     }
   })
 
+  test('GET /zkcream/:address/:voter -> should return correct initial status', async () => {
+    voter = '0xC5fdf4076b8F3A5357c5E395ab970B5B54098Fef'
+
+    const r = await get('zkcream/' + zkCreamAddress + '/' + voter)
+
+    expect(r.data.holdingToken).toEqual(0)
+    expect(r.data.isApproved).toEqual(0)
+  })
+
   test('GET /zkcream/deposit/logs/:address -> should return deposit events', async () => {
     // transfer token to voter
-    voter = '0xC5fdf4076b8F3A5357c5E395ab970B5B54098Fef'
     votingSigner = provider.getSigner(voter)
-
     zkCreamInstance = new ethers.Contract(
       zkCreamAddress,
       Cream.abi,
@@ -125,13 +132,11 @@ describe('Cream contract interaction API', () => {
     )
 
     const votingTokenAddress = await zkCreamInstance.votingToken()
-
     let votingTokenInstance = new ethers.Contract(
       votingTokenAddress,
       V_Token.abi,
       ownerSigner
     )
-
     let tx = await votingTokenInstance.giveToken(voter)
     let r = await tx.wait()
 
@@ -139,10 +144,18 @@ describe('Cream contract interaction API', () => {
       console.error('[giveToken] error')
     }
 
+    // assert token status
+    r = await get('zkcream/' + zkCreamAddress + '/' + voter)
+    expect(r.data.holdingToken).toEqual(1)
+
     // deposit token
     deposit = createDeposit(rbigInt(31), rbigInt(31))
     votingTokenInstance = votingTokenInstance.connect(votingSigner)
     await votingTokenInstance.setApprovalForAll(zkCreamAddress, true)
+
+    // assert token approval
+    r = await get('zkcream/' + zkCreamAddress + '/' + voter)
+    expect(r.data.isApproved).toBeTruthy()
 
     tx = await zkCreamInstance.deposit(toHex(deposit.commitment))
     r = await tx.wait()

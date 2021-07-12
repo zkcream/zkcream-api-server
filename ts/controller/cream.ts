@@ -152,12 +152,16 @@ class CreamController implements IController {
       this.provider
     )
 
-    const hasSignUpToken = await signUpTokenInstance.balanceOf(voter)
+    const hasSignUpToken = parseInt(
+      (await signUpTokenInstance.balanceOf(voter)).toString()
+    )
 
     if (hasSignUpToken) {
       holdingToken = TokenType.SIGNUP
     } else {
-      const hasVotingToken = await votingTokenInstance.balanceOf(voter)
+      const hasVotingToken = parseInt(
+        (await votingTokenInstance.balanceOf(voter)).toString()
+      )
       if (hasVotingToken) {
         holdingToken = TokenType.VOTING
         isApproved = await votingTokenInstance.isApprovedForAll(
