@@ -22,6 +22,8 @@ import V_Token from '../../abis/VotingToken.json'
 import Cream from '../../abis/Cream.json'
 import MACI from '../../abis/MACI.json'
 
+import { TokenType } from '../controller/cream'
+
 const port = config.server.port
 const coordinatorPrivKey = config.maci.coordinatorPrivKey
 const coordinatorAddress = '0xf17f52151EbEF6C7334FAD080c5704D77216b732'
@@ -199,7 +201,8 @@ describe('Cream contract interaction API', () => {
         // voter owns signUp token
         const voter = '0xC5fdf4076b8F3A5357c5E395ab970B5B54098Fef'
         const r2 = await get('zkcream/' + zkCreamAddress + '/' + voter)
-        expect(r2.data[1]).toEqual(1)
+
+        expect(r2.data.holdingToken).toEqual(TokenType.SIGNUP)
     })
 
     /* =======================================================
@@ -317,9 +320,9 @@ describe('Cream contract interaction API', () => {
 
         // check if recipients received a token
         const r2 = await get(
-            'zkcream/' + zkCreamAddress + '/' + election.recipients[0]
+            'zkcream/tally/' + zkCreamAddress + '/' + election.recipients[0]
         )
-        expect(r2.data[0]).toEqual(1)
+        expect(r2.data).toEqual(1)
     })
 
     afterAll(async () => {

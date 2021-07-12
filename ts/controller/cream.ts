@@ -13,6 +13,22 @@ import Cream from '../../abis/Cream.json'
 
 const port = config.server.port
 
+export enum TokenType {
+    NULL = 0,
+    VOTING = 1 << 0,
+    SIGNUP = 1 << 1,
+}
+
+enum Status {
+    UNAPPROVED = 0,
+    APPROVED = 1 << 0,
+}
+
+interface TokenStatus {
+    holdingToken: TokenType
+    isApproved: Status
+}
+
 class CreamController implements IController {
     private Router = new Router({
         prefix: '/zkcream',
@@ -31,7 +47,8 @@ class CreamController implements IController {
             this.getLogs.bind(this)
         )
             .get('/:address', this.getDetails.bind(this))
-            .get('/:address/:voter', this.hasToken.bind(this))
+            .get('/:address/:voter', this.getTokenStatus.bind(this))
+            .get('/tally/:address/:recipient', this.getTallyResult.bind(this))
             .post('/genproof', this.genFormattedProof.bind(this))
             .post('/publish/:address', this.publish.bind(this))
             .post('/approve/:address', this.approve.bind(this))
@@ -102,13 +119,19 @@ class CreamController implements IController {
     }
 
     /*
-     @return - number[] number of tokens voter own
-                        TODO: should return false if voter own > 1
+     @return - TokenStatus
    */
-    private hasToken = async (ctx: Koa.Context) => {
+    private getTokenStatus = async (ctx: Koa.Context) => {
         const creamAddress = ctx.params.address
         const voter = ctx.params.voter
-        const arr: number[] = []
+
+        let holdingToken: TokenType = TokenType.NULL
+        let isApproved: Status = Status.UNAPPROVED
+
+        let r: TokenStatus = {
+            holdingToken,
+            isApproved,
+        }
 
         const creamInstance = new ethers.Contract(
             creamAddress,
@@ -132,14 +155,29 @@ class CreamController implements IController {
             this.provider
         )
 
-        arr.push(
-            parseInt((await votingTokenInstance.balanceOf(voter)).toString())
-        )
-        arr.push(
-            parseInt((await signUpTokenInstance.balanceOf(voter)).toString())
-        )
+        const hasSignUpToken = await signUpTokenInstance.balanceOf(voter)
 
-        ctx.body = arr
+        if (hasSignUpToken) {
+            holdingToken = TokenType.SIGNUP
+        } else {
+            const hasVotingToken = await votingTokenInstance.balanceOf(voter)
+            if (hasVotingToken) {
+                holdingToken = TokenType.VOTING
+                isApproved = await votingTokenInstance.isApprovedForAll(
+                    voter,
+                    creamAddress
+                )
+            } else {
+                holdingToken = TokenType.NULL
+            }
+        }
+
+        r = {
+            holdingToken,
+            isApproved,
+        }
+
+        ctx.body = r
     }
 
     /*
@@ -197,6 +235,32 @@ class CreamController implements IController {
         )
         const tx = await creamInstance.approveTally()
         const r = await tx.wait()
+        ctx.body = r
+    }
+
+    /*
+    @return number of token the recipient received
+    */
+    private getTallyResult = async (ctx: Koa.Context) => {
+        const creamAddress = ctx.params.address
+        const recipient = ctx.params.recipient
+
+        const creamInstance = new ethers.Contract(
+            creamAddress,
+            Cream.abi,
+            this.provider
+        )
+
+        const votingTokenAddress = await creamInstance.votingToken()
+
+        const votingTokenInstance = new ethers.Contract(
+            votingTokenAddress,
+            V_Token.abi,
+            this.provider
+        )
+
+        const r = (await votingTokenInstance.balanceOf(recipient)).toString()
+
         ctx.body = r
     }
 }
