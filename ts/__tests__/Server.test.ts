@@ -8,35 +8,35 @@ let server
 let election
 
 describe('Server API', () => {
-    beforeAll(async () => {
-        server = app.listen(port)
-    })
+  beforeAll(async () => {
+    server = app.listen(port)
+  })
 
-    test('GET /:msg -> should echo msg', async () => {
-        const e = 'zkCREAM'
-        const r = await get(e)
-        expect(e).toEqual(r.data.msg)
-    })
+  test('GET /:msg -> should echo msg', async () => {
+    const e = 'zkCREAM'
+    const r = await get(e)
+    expect(e).toEqual(r.data.msg)
+  })
 
-    test('POST /ipfs -> should return hash', async () => {
-        const data = {
-            msg: 'zkCREAM',
-        }
-        const e = 'QmeT5VjyMrbL5HPHxy4UkjR5pijPhbHsV9w5T9MRDwEnkf'
-        const r = await post('ipfs', data)
-        expect(e).toEqual(r.data.path)
-    })
+  test('POST /ipfs -> should return hash', async () => {
+    const data = {
+      msg: 'zkCREAM',
+    }
+    const e = 'QmeT5VjyMrbL5HPHxy4UkjR5pijPhbHsV9w5T9MRDwEnkf'
+    const r = await post('ipfs', data)
+    expect(e).toEqual(r.data.path)
+  })
 
-    test('GET /ipfs -> should return correct data', async () => {
-        const hash = 'QmeT5VjyMrbL5HPHxy4UkjR5pijPhbHsV9w5T9MRDwEnkf'
-        const e = {
-            msg: 'zkCREAM',
-        }
-        const r = await get('ipfs/' + hash)
-        expect(e).toEqual(r.data)
-    })
+  test('GET /ipfs -> should return correct data', async () => {
+    const hash = 'QmeT5VjyMrbL5HPHxy4UkjR5pijPhbHsV9w5T9MRDwEnkf'
+    const e = {
+      msg: 'zkCREAM',
+    }
+    const r = await get('ipfs/' + hash)
+    expect(e).toEqual(r.data)
+  })
 
-    afterAll(async () => {
-        server.close()
-    })
+  afterAll(async () => {
+    server.close()
+  })
 })

@@ -9,62 +9,58 @@ import Cream from '../../abis/Cream.json'
 import MACI from '../../abis/MACI.json'
 
 class MaciController implements IController {
-    private Router = new Router({
-        prefix: '/maci',
+  private Router = new Router({
+    prefix: '/maci',
+  })
+  private provider: ethers.providers.JsonRpcProvider
+  private signer: ethers.Wallet
+
+  constructor() {
+    this.provider = new ethers.providers.JsonRpcProvider(config.eth.url)
+    this.signer = new ethers.Wallet(config.eth.adminKey, this.provider)
+  }
+
+  public router = (): Router => {
+    return this.Router.get(
+      '/params/:address',
+      this.getParamsForMaciState.bind(this)
+    )
+  }
+
+  private getParamsForMaciState = async (ctx: Koa.Context) => {
+    const maciAddress = ctx.params.address
+
+    const maciInstance = new ethers.Contract(maciAddress, MACI.abi, this.signer)
+
+    const treeDepths = await maciInstance.treeDepths()
+    const stateTreeDepth = treeDepths[0].toString()
+    const messageTreeDepth = treeDepths[1].toString()
+    const voteOptionTreeDepth = treeDepths[2].toString()
+    const maxVoteOptionIndex = (
+      await maciInstance.voteOptionsMaxLeafIndex()
+    ).toString()
+
+    const signUpLogs = await this.provider.getLogs({
+      ...maciInstance.filters.SignUp(),
+      fromBlock: 0,
     })
-    private provider: ethers.providers.JsonRpcProvider
-    private signer: ethers.Wallet
 
-    constructor() {
-        this.provider = new ethers.providers.JsonRpcProvider(config.eth.url)
-        this.signer = new ethers.Wallet(config.eth.adminKey, this.provider)
+    const publishMessageLogs = await this.provider.getLogs({
+      ...maciInstance.filters.PublishMessage(),
+      fromBlock: 0,
+    })
+
+    const data = {
+      stateTreeDepth,
+      messageTreeDepth,
+      voteOptionTreeDepth,
+      maxVoteOptionIndex,
+      signUpLogs,
+      publishMessageLogs,
     }
 
-    public router = (): Router => {
-        return this.Router.get(
-            '/params/:address',
-            this.getParamsForMaciState.bind(this)
-        )
-    }
-
-    private getParamsForMaciState = async (ctx: Koa.Context) => {
-        const maciAddress = ctx.params.address
-
-        const maciInstance = new ethers.Contract(
-            maciAddress,
-            MACI.abi,
-            this.signer
-        )
-
-        const treeDepths = await maciInstance.treeDepths()
-        const stateTreeDepth = treeDepths[0].toString()
-        const messageTreeDepth = treeDepths[1].toString()
-        const voteOptionTreeDepth = treeDepths[2].toString()
-        const maxVoteOptionIndex = (
-            await maciInstance.voteOptionsMaxLeafIndex()
-        ).toString()
-
-        const signUpLogs = await this.provider.getLogs({
-            ...maciInstance.filters.SignUp(),
-            fromBlock: 0,
-        })
-
-        const publishMessageLogs = await this.provider.getLogs({
-            ...maciInstance.filters.PublishMessage(),
-            fromBlock: 0,
-        })
-
-        const data = {
-            stateTreeDepth,
-            messageTreeDepth,
-            voteOptionTreeDepth,
-            maxVoteOptionIndex,
-            signUpLogs,
-            publishMessageLogs,
-        }
-
-        ctx.body = data
-    }
+    ctx.body = data
+  }
 }
 
 export default new MaciController().router()

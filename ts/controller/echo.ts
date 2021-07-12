@@ -4,17 +4,17 @@ import Koa from 'koa'
 import { IController } from './interface'
 
 class EchoController implements IController {
-    private Router = new Router()
+  private Router = new Router()
 
-    constructor() {}
+  constructor() {}
 
-    public router = (): Router => {
-        return this.Router.get('/:msg', this.echo.bind(this))
-    }
+  public router = (): Router => {
+    return this.Router.get('/:msg', this.echo.bind(this))
+  }
 
-    private echo = async (ctx: Koa.Context) => {
-        ctx.body = ctx.params
-    }
+  private echo = async (ctx: Koa.Context) => {
+    ctx.body = ctx.params
+  }
 }
 
 export default new EchoController().router()
