@@ -273,7 +273,6 @@ describe('Cream contract interaction API', () => {
     expect(voteOptionTreeDepth).toEqual('2')
     expect(maxVoteOptionIndex).toEqual('3')
     expect(signUpLogs.length > 0).toBeTruthy()
-    expect(signUpLogs.length > 0).toBeTruthy()
   })
 
   /* =======================================================
