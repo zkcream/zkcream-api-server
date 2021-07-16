@@ -39,6 +39,7 @@ class MaciController implements IController {
     const maxVoteOptionIndex = (
       await maciInstance.voteOptionsMaxLeafIndex()
     ).toString()
+    const coordinatorPubKey = await maciInstance.coordinatorPubKey()
 
     const signUpLogs = await this.provider.getLogs({
       ...maciInstance.filters.SignUp(),
@@ -55,6 +56,7 @@ class MaciController implements IController {
       messageTreeDepth,
       voteOptionTreeDepth,
       maxVoteOptionIndex,
+      coordinatorPubKey,
       signUpLogs,
       publishMessageLogs,
     }
