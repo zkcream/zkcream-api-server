@@ -274,10 +274,10 @@ describe('Cream contract interaction API', () => {
       BigInt(coordinatorPubKey[1].hex),
     ]
 
-    expect(stateTreeDepth).toEqual('4')
-    expect(messageTreeDepth).toEqual('4')
-    expect(voteOptionTreeDepth).toEqual('2')
-    expect(maxVoteOptionIndex).toEqual('3')
+    expect(stateTreeDepth).toEqual(4)
+    expect(messageTreeDepth).toEqual(4)
+    expect(voteOptionTreeDepth).toEqual(2)
+    expect(maxVoteOptionIndex).toEqual(3)
     expect(contractPubKey).toEqual(coordinator.pubKey.rawPubKey)
     expect(signUpLogs.length > 0).toBeTruthy()
     expect(publishMessageLogs.length > 0).toBeTruthy()

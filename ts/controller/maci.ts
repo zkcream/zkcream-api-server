@@ -4,6 +4,7 @@ import Koa from 'koa'
 
 import config from '../config'
 import { IController } from './interface'
+import { getMaciLogs } from './utils'
 
 import Cream from '../../abis/Cream.json'
 import MACI from '../../abis/MACI.json'
@@ -33,23 +34,18 @@ class MaciController implements IController {
     const maciInstance = new ethers.Contract(maciAddress, MACI.abi, this.signer)
 
     const treeDepths = await maciInstance.treeDepths()
-    const stateTreeDepth = treeDepths[0].toString()
-    const messageTreeDepth = treeDepths[1].toString()
-    const voteOptionTreeDepth = treeDepths[2].toString()
-    const maxVoteOptionIndex = (
+    const stateTreeDepth = treeDepths[0]
+    const messageTreeDepth = treeDepths[1]
+    const voteOptionTreeDepth = treeDepths[2]
+    const maxVoteOptionIndex = parseInt(
       await maciInstance.voteOptionsMaxLeafIndex()
-    ).toString()
+    )
     const coordinatorPubKey = await maciInstance.coordinatorPubKey()
-
-    const signUpLogs = await this.provider.getLogs({
-      ...maciInstance.filters.SignUp(),
-      fromBlock: 0,
-    })
-
-    const publishMessageLogs = await this.provider.getLogs({
-      ...maciInstance.filters.PublishMessage(),
-      fromBlock: 0,
-    })
+    const signUpLogs = await getMaciLogs(maciInstance, 'SignUp')
+    const publishMessageLogs = await getMaciLogs(maciInstance, 'PublishMessage')
+    const signUpTimestamp = await maciInstance.signUpTimestamp()
+    const signUpDurationSeconds = await maciInstance.signUpDurationSeconds()
+    const votingDurationSeconds = await maciInstance.votingDurationSeconds()
 
     const data = {
       stateTreeDepth,
@@ -59,6 +55,9 @@ class MaciController implements IController {
       coordinatorPubKey,
       signUpLogs,
       publishMessageLogs,
+      signUpTimestamp,
+      signUpDurationSeconds,
+      votingDurationSeconds,
     }
 
     ctx.body = data

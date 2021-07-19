@@ -31,6 +31,27 @@ export const findHash = (address: string, arr: any) => {
   return a[1] // a = array[address, ipfsHash]
 }
 
+export const getMaciLogs = async (
+  instance: ethers.Contract,
+  eventName: any
+) => {
+  let logs: any[]
+
+  try {
+    logs = await instance.queryFilter(eventName)
+    return logs.map((log) => {
+      return log.args
+    })
+  } catch (e) {
+    if (e.message === `Cannot read property 'getLogs' of null`) {
+      logs = []
+      return logs
+    } else {
+      throw Error('There is an error getting contract log')
+    }
+  }
+}
+
 interface Proof {
   pi_a: string[]
   pi_b: string[]
