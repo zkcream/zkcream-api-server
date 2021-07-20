@@ -125,11 +125,6 @@ class CreamController implements IController {
     let holdingToken: TokenType = TokenType.NULL
     let isApproved: Status = Status.UNAPPROVED
 
-    let r: TokenStatus = {
-      holdingToken,
-      isApproved,
-    }
-
     const creamInstance = new ethers.Contract(
       creamAddress,
       Cream.abi,
@@ -173,7 +168,7 @@ class CreamController implements IController {
       }
     }
 
-    r = {
+    const r: TokenStatus = {
       holdingToken,
       isApproved,
     }
