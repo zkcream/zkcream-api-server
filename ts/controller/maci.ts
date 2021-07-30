@@ -4,10 +4,16 @@ import Koa from 'koa'
 
 import config from '../config'
 import { IController } from './interface'
-import { getMaciLogs } from './utils'
+import { formatProofForVerifierContract, getMaciLogs } from './utils'
 
 import Cream from '../../abis/Cream.json'
 import MACI from '../../abis/MACI.json'
+
+import {
+  genBatchUstProofAndPublicSignals,
+  verifyBatchUstProof,
+  getSignalByName,
+} from 'maci-circuits'
 
 class MaciController implements IController {
   private Router = new Router({
@@ -25,7 +31,7 @@ class MaciController implements IController {
     return this.Router.get(
       '/params/:address',
       this.getParamsForMaciState.bind(this)
-    )
+    ).post('/genproof', this.genProof.bind(this))
   }
 
   private getParamsForMaciState = async (ctx: Koa.Context) => {
@@ -65,6 +71,41 @@ class MaciController implements IController {
     }
 
     ctx.body = data
+  }
+
+  /*
+   @return formattedProof
+   */
+  private genProof = async (ctx: Koa.Context) => {
+    const { circuitInputs, configType, stateRootAfter } = ctx.request.body
+    const {
+      circuit,
+      witness,
+      proof,
+      publicSignals,
+    } = await genBatchUstProofAndPublicSignals(
+      JSON.parse(circuitInputs),
+      configType
+    )
+
+    // Get the circuit-generated root
+    const circuitNewStateRoot = getSignalByName(circuit, witness, 'main.root')
+    if (!circuitNewStateRoot.toString() === stateRootAfter) {
+      console.error('Error: circuit-computed root mismatch')
+      return
+    }
+
+    const isValid = await verifyBatchUstProof(proof, publicSignals, configType)
+    if (!isValid) {
+      console.error(
+        'Error: could not generate a valid proof or the verifying key is incorrect'
+      )
+      return
+    }
+
+    const result = formatProofForVerifierContract(proof)
+
+    ctx.body = result
   }
 }
 

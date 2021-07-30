@@ -5,7 +5,9 @@
   "main": "build/ts/index.js",
   "scripts": {
     "build": "tsc",
+    "prebuild": "yarn copy:maci-circuits",
     "copy:config": "cp ./ts/config/**.yaml ./build/ts/config/",
+    "copy:maci-circuits": "cp -R ./zkcream/node_modules/maci-circuits ./node_modules",
     "format": "npx prettier './ts/**/*.{js,ts}' --write",
     "postbuild": "yarn copy:config",
     "postinstall": "husky install",
