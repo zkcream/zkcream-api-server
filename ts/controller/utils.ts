@@ -32,24 +32,19 @@ export const findHash = (address: string, arr: any) => {
 }
 
 export const getMaciLogs = async (
-  instance: ethers.Contract,
-  eventName: any
+  provider: ethers.providers.JsonRpcProvider,
+  maciContract: ethers.Contract,
+  eventName: string
 ) => {
-  let logs: any[]
-
-  try {
-    logs = await instance.queryFilter(eventName)
-    return logs.map((log) => {
-      return log.args
-    })
-  } catch (e) {
-    if (e.message === `Cannot read property 'getLogs' of null`) {
-      logs = []
-      return logs
-    } else {
-      throw Error('There is an error getting contract log')
-    }
-  }
+  return eventName === 'SignUp'
+    ? await provider.getLogs({
+        ...maciContract.filters.SignUp(),
+        fromBlock: 0,
+      })
+    : await provider.getLogs({
+        ...maciContract.filters.PublishMessage(),
+        fromBlock: 0,
+      })
 }
 
 interface Proof {

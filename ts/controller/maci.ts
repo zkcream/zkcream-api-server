@@ -41,8 +41,12 @@ class MaciController implements IController {
       await maciInstance.voteOptionsMaxLeafIndex()
     )
     const coordinatorPubKey = await maciInstance.coordinatorPubKey()
-    const signUpLogs = await getMaciLogs(maciInstance, 'SignUp')
-    const publishMessageLogs = await getMaciLogs(maciInstance, 'PublishMessage')
+    const signUpLogs = await getMaciLogs(this.provider, maciInstance, 'SignUp')
+    const publishMessageLogs = await getMaciLogs(
+      this.provider,
+      maciInstance,
+      'PublishMessage'
+    )
     const signUpTimestamp = await maciInstance.signUpTimestamp()
     const signUpDurationSeconds = await maciInstance.signUpDurationSeconds()
     const votingDurationSeconds = await maciInstance.votingDurationSeconds()
