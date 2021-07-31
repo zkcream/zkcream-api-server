@@ -11,6 +11,7 @@ import MACI from '../../abis/MACI.json'
 
 import {
   genBatchUstProofAndPublicSignals,
+  genQvtProofAndPublicSignals,
   verifyBatchUstProof,
   getSignalByName,
 } from 'maci-circuits'
@@ -31,7 +32,9 @@ class MaciController implements IController {
     return this.Router.get(
       '/params/:address',
       this.getParamsForMaciState.bind(this)
-    ).post('/genproof', this.genProof.bind(this))
+    )
+      .post('/genproof', this.genProof.bind(this))
+      .post('/gen_qvtproof', this.genQvtProof.bind(this))
   }
 
   private getParamsForMaciState = async (ctx: Koa.Context) => {
@@ -99,6 +102,73 @@ class MaciController implements IController {
     if (!isValid) {
       console.error(
         'Error: could not generate a valid proof or the verifying key is incorrect'
+      )
+      return
+    }
+
+    const result = formatProofForVerifierContract(proof)
+
+    ctx.body = result
+  }
+
+  private genQvtProof = async (ctx: Koa.Context) => {
+    const {
+      circuitInputs,
+      configType,
+      newResultsCommitment,
+      newSpentVoiceCreditsCommitment,
+      newPerVOSpentVoiceCreditsCommitment,
+    } = ctx.request.body
+    const {
+      circuit,
+      witness,
+      proof,
+      publicSignals,
+    } = await genQvtProofAndPublicSignals(JSON.parse(circuitInputs), configType)
+
+    // The vote tally commmitment
+    const expectedNewResultsCommitmentOutput = getSignalByName(
+      circuit,
+      witness,
+      'main.newResultsCommitment'
+    )
+
+    if (
+      expectedNewResultsCommitmentOutput.toString() !==
+      JSON.parse(newResultsCommitment).toString()
+    ) {
+      console.error('Error: result commitment mismatch')
+      return
+    }
+
+    // The commitment to the total spent voice credits
+    const expectedSpentVoiceCreditsCommitmentOutput = getSignalByName(
+      circuit,
+      witness,
+      'main.newSpentVoiceCreditsCommitment'
+    )
+
+    if (
+      expectedSpentVoiceCreditsCommitmentOutput.toString() !==
+      JSON.parse(newSpentVoiceCreditsCommitment).toString()
+    ) {
+      console.error('Error: total spent voice credits commitment mismatch')
+      return
+    }
+
+    // The commitment to the spent voice credits per vote option
+    const expectedPerVOSpentVoiceCreditsCommitmentOutput = getSignalByName(
+      circuit,
+      witness,
+      'main.newPerVOSpentVoiceCreditsCommitment'
+    )
+
+    if (
+      expectedPerVOSpentVoiceCreditsCommitmentOutput.toString() !==
+      JSON.parse(newPerVOSpentVoiceCreditsCommitment).toString()
+    ) {
+      console.error(
+        'Error: total spent voice credits per vote option commitment mismatch'
       )
       return
     }
