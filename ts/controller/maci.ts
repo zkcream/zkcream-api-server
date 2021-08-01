@@ -13,6 +13,7 @@ import {
   genBatchUstProofAndPublicSignals,
   genQvtProofAndPublicSignals,
   verifyBatchUstProof,
+  verifyQvtProof,
   getSignalByName,
 } from 'maci-circuits'
 
@@ -118,6 +119,7 @@ class MaciController implements IController {
       newResultsCommitment,
       newSpentVoiceCreditsCommitment,
       newPerVOSpentVoiceCreditsCommitment,
+      contractPublicSignals,
     } = ctx.request.body
     const {
       circuit,
@@ -169,6 +171,23 @@ class MaciController implements IController {
     ) {
       console.error(
         'Error: total spent voice credits per vote option commitment mismatch'
+      )
+      return
+    }
+
+    // const publicSignalMatch =
+    //   JSON.stringify(publicSignals.map((x) => x.toString())) ===
+    //   JSON.stringify(contractPublicSignals.map((x) => BigInt(parseInt(x.hex, 16)).toString()))
+
+    // if (!publicSignalMatch) {
+    //   console.error('Error: public signal mismatch')
+    //   return
+    // }
+
+    const isValid = verifyQvtProof(proof, publicSignals, configType)
+    if (!isValid) {
+      console.error(
+        'Error: could not generate a valid proof or the verifying key is incorrect'
       )
       return
     }
