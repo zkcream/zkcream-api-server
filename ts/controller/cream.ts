@@ -106,7 +106,7 @@ class CreamController implements IController {
     const coordinator = await creamInstance.coordinator()
 
     r2.data.approved = approved
-    r2.data.tallyHash = tallyHash
+    r2.data.tallyHash = tallyHash !== '' ? tallyHash : undefined
     r2.data.maciAddress = maciAddress
     r2.data.signUpTokenAddress = signUpTokenAddress
     r2.data.votingTokenAddress = votingTokenAddress
