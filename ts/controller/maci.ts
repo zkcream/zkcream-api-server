@@ -60,6 +60,8 @@ class MaciController implements IController {
     const signUpTimestamp = await maciInstance.signUpTimestamp()
     const signUpDurationSeconds = await maciInstance.signUpDurationSeconds()
     const votingDurationSeconds = await maciInstance.votingDurationSeconds()
+    const signUpDeadline = await maciInstance.calcSignUpDeadline()
+    const votingDeadline = await maciInstance.calcVotingDeadline()
 
     const data = {
       stateTreeDepth,
@@ -72,6 +74,8 @@ class MaciController implements IController {
       signUpTimestamp,
       signUpDurationSeconds,
       votingDurationSeconds,
+      signUpDeadline,
+      votingDeadline,
     }
 
     ctx.body = data
