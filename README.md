@@ -4,42 +4,58 @@
 
 This is the server that provides the backend API for zkCREAM.
 
-`TODO` provide api documentations.
-
 ## Requirements
 
-* Nodejs >= v14.x
+* Nodejs ^14.x
+* yarn
 
 ## Build
 
+1. Submodule update
+
 ```bash
+git clone https://github.com/zkcream/zkcream-api-server.git && \
+cd zkcream-api-server && \
+git submodule update --init
+```
+
+2. Build zkcream
+
+```bash
+cd zkcream # inside of submodule
+yarn
 yarn build
-node ./build/index.js
+```
+
+3. Build and run api server
+
+```bash
+cd ../ # project's top directory 
+yarn build
+yarn run # running at port 3000
 ```
 
 Then access `{HOST}:{PORT}` `http://localhost:3000` for a test environment. You can change the hostname and port number customising the [config](https://github.com/zkcream/zkcream-api-server/tree/master/ts/config) file.
 
 ## Test
 
-1. In order to run test on local machine, first you need to clone [zkcream repo](https://github.com/couger-inc/cream.git).
+1. You need to run `ganche` and `ipfs` node and finally migrate the contracts by typing
 
 ```bash
-git clone https://github.com/couger-inc/cream.git
-```
+cd zkcream
 
-2. Then, you need to run `ganche` and `ipfs` node and finally migrate the contracts by typing
+# if you haven't built yet, run:
+# yarn
+# yarn build
 
-```bash
-cd cream
-yarn
-yarn build
 yarn workspace @cream/contracts ganache
 yarn start:ipfs
 yarn workspace @cream/contracts migrate
 ```
 
-3. Lastly, you can run test command as follows:
+2. Then, you can run test command as follows:
 
 ```bash
+cd ../ # project's top directory 
 yarn test
 ```
