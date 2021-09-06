@@ -66,13 +66,13 @@ class CreamController implements IController {
       ctx.body = logs.map((log) => {
         return log.args
       })
-    } catch (e) {
+    } catch (e: any) {
       if (e.message === `Cannot read property 'getLogs' of null`) {
         logs = []
         ctx.body = logs
       } else {
-        ctx.throw(e)
         console.log(e.messsage, e.stack)
+        ctx.throw(e)
       }
     }
   }
