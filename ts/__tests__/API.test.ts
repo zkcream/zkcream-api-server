@@ -267,6 +267,8 @@ describe('Cream contract interaction API', () => {
       coordinatorPubKey,
       signUpLogs,
       publishMessageLogs,
+      totalVotes,
+      hasUnprocessedMessages,
     } = r.data
 
     const contractPubKey = [
@@ -281,6 +283,8 @@ describe('Cream contract interaction API', () => {
     expect(contractPubKey).toEqual(coordinator.pubKey.rawPubKey)
     expect(signUpLogs.length > 0).toBeTruthy()
     expect(publishMessageLogs.length > 0).toBeTruthy()
+    expect(totalVotes).toEqual(0)
+    expect(hasUnprocessedMessages).toBeTruthy()
   })
 
   /* =======================================================
