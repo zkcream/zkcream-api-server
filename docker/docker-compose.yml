@@ -1,0 +1,23 @@
+version: "3"
+services:
+  zkcream-ipfs:
+    container_name: zkcream-ipfs
+    build: ./ipfs
+    ports:
+      - "5001:5001" # api
+    restart: always
+
+  zkcream-ganache:
+    container_name: zkcream-ganache
+    build:
+      context: ./ganache
+    ports:
+      - "8545:8545"
+    restart: always
+
+  # geth:
+  #   build: ./geth
+  #   ports:
+  #     - "8545:8545"
+  #     - "8546:8546"
+  #   restart: always
