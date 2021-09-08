@@ -7,3 +7,6 @@ set -e
 cd $(dirname $0)
 cd ../
 docker build -f ./docker/ganache/ganache.dockerfile -t zk-ganache --target zk-ganache .
+
+echo -e "${GREEN}\nBuilding builder\n${NC}"
+docker build -f Dockerfile -t builder --target builder .
