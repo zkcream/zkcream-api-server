@@ -9,7 +9,28 @@ This is the server that provides the backend API for zkCREAM.
 * Nodejs ^14.x
 * yarn
 
-## Build
+## Build docker
+
+### Requirements
+
+* docker
+* docker-compose
+
+```bash
+./buildDev.sh
+./start.sh
+```
+
+Then, you can http request to the endpoint, for example:
+
+```bash
+curl http://localhost:3000/foo
+
+// response
+// {msg:"foo"}
+```
+
+## Build local
 
 1. Submodule update
 
