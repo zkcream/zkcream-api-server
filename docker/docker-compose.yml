@@ -15,6 +15,17 @@ services:
       - "8545:8545"
     restart: always
 
+  zkcream-api:
+    container_name: zkcream-api
+    working_dir: /api-server
+    build:
+      context: ../    
+    command:
+        yarn start
+    ports:
+      - "3000:3000"
+    restart: always
+
   # geth:
   #   build: ./geth
   #   ports:
