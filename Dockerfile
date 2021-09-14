@@ -4,10 +4,12 @@ FROM node:${NODE_VERSION}-alpine AS zkcream-api
 WORKDIR /api-server
 
 RUN apk update && \
+    apk upgrade && \
     apk add git \
     curl \
     bash \
-    wget
+    wget \
+    build-base
 
 ARG NODE_ENV
 ENV NODE_ENV=$NODE_ENV
@@ -43,6 +45,9 @@ RUN cd zkcream && \
     yarn clean && \
     yarn && \
     yarn build
+
+RUN cd zkcream/packages/circuits && \
+    ./scripts/installZkutil.sh
 
 RUN cd zkcream/packages/contracts && \
     yarn migrate:docker

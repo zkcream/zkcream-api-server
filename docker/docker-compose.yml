@@ -9,7 +9,7 @@ services:
 
   zkcream-ganache:
     container_name: zkcream-ganache
-    build:
+    build:  
       context: ./ganache
     ports:
       - "8545:8545"
@@ -19,7 +19,9 @@ services:
     container_name: zkcream-api
     working_dir: /api-server
     build:
-      context: ../    
+      context: ../  
+    environment:
+     - NODE_ENV=docker  
     command:
         yarn start
     ports:
