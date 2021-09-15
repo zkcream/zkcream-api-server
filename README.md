@@ -16,6 +16,16 @@ This is the server that provides the backend API for zkCREAM.
 * docker
 * docker-compose
 
+1. Submobule update
+
+```bash
+git clone https://github.com/zkcream/zkcream-api-server.git && \
+cd zkcream-api-server && \
+git submodule update --init
+```
+
+2. Build Docker
+
 ```bash
 ./buildDev.sh
 ./start.sh
