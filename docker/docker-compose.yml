@@ -34,3 +34,14 @@ services:
   #     - "8545:8545"
   #     - "8546:8546"
   #   restart: always
+
+  zkcream-nginx:
+    container_name: zkcream-nginx
+    build:
+      context: ./nginx
+    links:
+      - zkcream-ipfs
+      - zkcream-ganache
+      - zkcream-api
+    ports:
+      - "80:80"
