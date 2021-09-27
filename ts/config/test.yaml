@@ -9,11 +9,15 @@ eth:
 
   adminKey: '0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3'
 
+  faucet:
+    address: '0x627306090abaB3A6e1400e9345bC60c78a8BEf57'
+    password: ''
+    value: '0xDE0B6B3A7640000'
+
 maci:
   initialVoiceCreditBalance: 100
-  signUpDurationInSeconds: 90 # 1 hour
-  votingDurationInSeconds: 60 # 1 hour
-  coordinatorPrivKey: "2222222222263902553431241761119057960280734584214105336279476766401963593688"
+  signUpDurationInSeconds: 120 # 2 min
+  votingDurationInSeconds: 120 # 2 min
   tallyBatchsize: 4
   messageBatchSize: 4
   quadVoteTallyBatchSize: 4

@@ -6,6 +6,7 @@ import EchoController from './controller/echo'
 import FactoryController from './controller/factory'
 import IpfsController from './controller/ipfs'
 import MaciController from './controller/maci'
+import FaucetController from './controller/faucet'
 import { middlewares } from './middlewares'
 
 class App {
@@ -49,6 +50,7 @@ class App {
     this.app.use(FactoryController.routes())
     this.app.use(MaciController.routes())
     this.app.use(IpfsController.routes())
+    this.app.use(FaucetController.routes())
   }
 }
 
