@@ -40,7 +40,7 @@ class FaucetController implements IController {
         },
       ],
     })
-    ctx.body = r.data
+    ctx.body = r.data.result
   }
 }
 
