@@ -9,11 +9,15 @@ eth:
 
   adminKey:
 
+  faucet:
+    address:
+    password:
+    value:
+
 maci:
   initialVoiceCreditBalance: 100
   signUpDurationInSeconds: 3600 # 1 hour
   votingDurationInSeconds: 3600 # 1 hour
-  coordinatorPrivKey:
   tallyBatchsize: 4
   messageBatchSize: 4
   quadVoteTallyBatchSize: 4

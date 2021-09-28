@@ -1,3 +1,5 @@
+import axios from 'axios'
+import { ethers, BigNumber } from 'ethers'
 import app from '../app'
 import config from '../config'
 import { get, post } from './utils'
@@ -5,7 +7,6 @@ import { get, post } from './utils'
 const port = config.server.port
 
 let server
-let election
 
 describe('Server API', () => {
   beforeAll(async () => {
@@ -34,6 +35,35 @@ describe('Server API', () => {
     }
     const r = await get('ipfs/' + hash)
     expect(e).toEqual(r.data)
+  })
+
+  test('POST /faucet -> should be able to transfer eth', async () => {
+    let id = Math.floor(Math.random() * 1000000000) + 1
+    const to = '0xf17f52151ebef6c7334fad080c5704d77216b732'
+    const value = ethers.BigNumber.from(config.eth.faucet.value)
+
+    const r1 = await axios.post(config.eth.url, {
+      jsonrpc: 2.0,
+      id,
+      method: 'eth_getBalance',
+      params: [to, 'latest'],
+    })
+
+    const before: BigNumber = ethers.BigNumber.from(r1.data.result)
+
+    const r = await post('faucet/', { to: to })
+
+    id = id + 1
+    const r2 = await axios.post(config.eth.url, {
+      jsonrpc: 2.0,
+      id,
+      method: 'eth_getBalance',
+      params: [to, 'latest'],
+    })
+
+    const after = ethers.BigNumber.from(r2.data.result.toString())
+
+    expect(before.add(value).eq(after))
   })
 
   afterAll(async () => {

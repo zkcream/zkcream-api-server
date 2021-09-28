@@ -25,7 +25,8 @@ import MACI from '../../abis/MACI.json'
 import { TokenType } from '../controller/cream'
 
 const port = config.server.port
-const coordinatorPrivKey = config.maci.coordinatorPrivKey
+const coordinatorPrivKey =
+  '2222222222263902553431241761119057960280734584214105336279476766401963593688'
 const coordinatorAddress = '0xf17f52151EbEF6C7334FAD080c5704D77216b732'
 const coordinator = new Keypair(new PrivKey(BigInt(coordinatorPrivKey)))
 const provider = new ethers.providers.JsonRpcProvider(config.eth.url)
