@@ -12,7 +12,7 @@ eth:
   faucet:
     address: '0x627306090abaB3A6e1400e9345bC60c78a8BEf57'
     password: ''
-    value: '0x200000000'
+    value: '0x16345785D8A0000'
 
 maci:
   initialVoiceCreditBalance: 100
