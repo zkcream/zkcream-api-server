@@ -27,8 +27,8 @@ git submodule update --init
 2. Build Docker
 
 ```bash
-./buildDev.sh
-./start.sh
+./scripts/buildDev.sh
+./scripts/start.sh
 ```
 
 Then, you can http request to the endpoint, for example:
@@ -36,7 +36,7 @@ Then, you can http request to the endpoint, for example:
 ```bash
 curl http://localhost:3000/foo
 
-// response
+# response
 // {msg:"foo"}
 ```
 
