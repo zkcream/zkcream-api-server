@@ -13,6 +13,10 @@ import Cream from '../../abis/Cream.json'
 
 const port = config.server.port
 
+if (!process.env.hasOwnProperty('NODE_ENV')) {
+  process.env.NODE_ENV = 'test'
+}
+
 export enum TokenType {
   NULL = 0,
   VOTING = 1 << 0,
@@ -187,7 +191,7 @@ class CreamController implements IController {
 
     const r = await genProofAndPublicSignals(
       parsedInput,
-      'prod/vote.circom',
+      `${process.env.NODE_ENV}/vote.circom`,
       'build/vote.zkey',
       'circuits/vote.wasm'
     )
