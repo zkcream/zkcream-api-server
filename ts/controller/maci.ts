@@ -6,7 +6,6 @@ import config from '../config'
 import { IController } from './interface'
 import { formatProofForVerifierContract, getMaciLogs } from './utils'
 
-import Cream from '../../abis/Cream.json'
 import MACI from '../../abis/MACI.json'
 
 import {

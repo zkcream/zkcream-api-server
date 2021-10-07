@@ -11,7 +11,7 @@ import S_Token from '../../abis/SignUpToken.json'
 import V_Token from '../../abis/VotingToken.json'
 
 const maciFactoryAddress = config.eth.contracts.maciFactory
-import Cream from '../../abis/Cream.json'
+
 import CreamFactory from '../../abis/CreamFactory.json'
 import MACIFactory from '../../abis/MACIFactory.json'
 
