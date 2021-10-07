@@ -13,7 +13,11 @@ import Cream from '../../abis/Cream.json'
 
 const port = config.server.port
 
-if (!process.env.hasOwnProperty('NODE_ENV')) {
+// TEMP: use test circuit unless it's production
+if (
+  !process.env.hasOwnProperty('NODE_ENV') ||
+  process.env.NODE_ENV !== 'prod'
+) {
   process.env.NODE_ENV = 'test'
 }
 
