@@ -84,14 +84,14 @@ class FactoryController implements IController {
       ctx.body = logs.map((log) => {
         return [log.args['creamAddress'], log.args['ipfsHash']]
       })
-    } catch (e) {
+    } catch (e: any) {
       if (e.message === `Cannot read property 'getLogs' of null`) {
         ctx.body = {
           message: e.message,
         }
       } else {
-        ctx.throw(e)
         console.log(e.messsage, e.stack)
+        ctx.throw(e)
       }
     }
   }
@@ -106,15 +106,12 @@ class FactoryController implements IController {
     }
 
     // Deploy votingToken, signUpToken and creamVerifier
-    const {
-      votingTokenInstance,
-      signUpTokenInstance,
-      creamVerifierInstance,
-    } = await deployModules(
-      this.votingToken,
-      this.signUpToken,
-      this.creamVerifier
-    )
+    const { votingTokenInstance, signUpTokenInstance, creamVerifierInstance } =
+      await deployModules(
+        this.votingToken,
+        this.signUpToken,
+        this.creamVerifier
+      )
 
     const {
       initial_voice_credit_balance,
