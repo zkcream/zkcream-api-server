@@ -45,3 +45,11 @@ services:
       - zkcream-api
     ports:
       - "80:80"
+
+  db:
+    container_name: db
+    image: mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./.data:/data/db
