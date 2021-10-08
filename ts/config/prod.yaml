@@ -31,6 +31,15 @@ maci:
 ipfs:
   url:
 
+mongo:
+  uri: 'mongodb://localhost:27017'
+
+auth:
+  saltrounds: 10
+  jwt:
+    secretOrKey: 'ashdfjhasdlkjfhalksdjhflak'
+    expiration: 3600
+
 server:
   port: 3000
   host: 'http://localhost:3000'

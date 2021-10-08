@@ -7,7 +7,10 @@ import FactoryController from './controller/factory'
 import IpfsController from './controller/ipfs'
 import MaciController from './controller/maci'
 import FaucetController from './controller/faucet'
+import UserController from './controller/user'
 import { middlewares } from './middlewares'
+import passport from 'koa-passport'
+import './db/mongo'
 
 class App {
   public app: Koa
@@ -24,6 +27,8 @@ class App {
     middlewares.forEach((middleware) =>
       this.app.use(this.requireMiddleware(middleware))
     )
+    this.app.use(passport.initialize())
+    this.app.use(passport.session())
   }
 
   private requireMiddleware = (path): Middleware => {
@@ -51,6 +56,7 @@ class App {
     this.app.use(MaciController.routes())
     this.app.use(IpfsController.routes())
     this.app.use(FaucetController.routes())
+    this.app.use(UserController.routes())
   }
 }
 
