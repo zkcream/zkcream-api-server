@@ -15,6 +15,8 @@ import Cream from '../../abis/Cream.json'
 import CreamFactory from '../../abis/CreamFactory.json'
 import MACIFactory from '../../abis/MACIFactory.json'
 
+import { jwtauth } from './auth'
+
 const port = config.server.port
 
 class FactoryController implements IController {
@@ -64,10 +66,9 @@ class FactoryController implements IController {
   }
 
   public router = (): Router => {
-    return this.Router.get('/logs', this.getLogs.bind(this)).post(
-      '/deploy',
-      this.deployNewZkCream.bind(this)
-    )
+    return this.Router.use(jwtauth)
+      .get('/logs', this.getLogs.bind(this))
+      .post('/deploy', this.deployNewZkCream.bind(this))
   }
 
   /*
