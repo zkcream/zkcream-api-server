@@ -13,7 +13,7 @@
     "postbuild": "yarn copy:config",
     "postinstall": "husky install",
     "start": "node ./build/ts/index.js",
-    "test": "npx jest",
+    "test": "npx jest --runInBand",
     "test:server": "npx jest Server.test.ts",
     "test:api": "npx jest API.test.ts",
     "watch": "tsc --watch"
