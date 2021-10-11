@@ -8,8 +8,9 @@ services:
     restart: always
 
   zkcream-chain:
-    container_name: zkcream-geth
-    build: ./geth
+    container_name: zkcream-ganache
+    build:  
+      context: ./ganache
     ports:
       - "8545:8545"
     restart: always
@@ -31,6 +32,8 @@ services:
     container_name: zkcream-nginx
     build:
       context: ./nginx
+    environment:
+      CHAIN: ganache
     links:
       - zkcream-ipfs
       - zkcream-chain
