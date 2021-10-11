@@ -6,7 +6,7 @@ import * as jwt from 'jsonwebtoken'
 import { User } from '../model/user'
 import config from '../config'
 import passport from 'koa-passport'
-import '../middlewares/passporthandler'
+import '../middlewares/passport'
 
 class UserController implements IController {
   private Router = new Router({
