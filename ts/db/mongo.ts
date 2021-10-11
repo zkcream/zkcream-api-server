@@ -14,16 +14,6 @@ const mongo = () => {
 
   connection.on('disconnected', () => {
     console.log('mongo connection disconnected')
-
-    console.log('reconnecting to mongo')
-    setTimeout(() => {
-      mongoose.connect(config.mongo.uri, {
-        autoReconnect: true,
-        keepAlive: true,
-        socketTimeoutMS: 3000,
-        connectTimeoutMS: 3000,
-      })
-    }, 3000)
   })
 
   connection.on('close', () => {
