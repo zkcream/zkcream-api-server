@@ -1,5 +1,6 @@
 import Koa, { Middleware } from 'koa'
 import cors from '@koa/cors'
+import passport from 'koa-passport'
 
 import CreamController from './controller/cream'
 import EchoController from './controller/echo'
@@ -9,7 +10,6 @@ import MaciController from './controller/maci'
 import FaucetController from './controller/faucet'
 import UserController from './controller/user'
 import { middlewares } from './middlewares'
-import passport from 'koa-passport'
 import './db/mongo'
 
 class App {
@@ -27,8 +27,6 @@ class App {
     middlewares.forEach((middleware) =>
       this.app.use(this.requireMiddleware(middleware))
     )
-    this.app.use(passport.initialize())
-    this.app.use(passport.session())
   }
 
   private requireMiddleware = (path): Middleware => {
