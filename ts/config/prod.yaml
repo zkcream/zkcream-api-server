@@ -37,8 +37,8 @@ mongo:
 auth:
   saltrounds: 10
   jwt:
-    secretOrKey: 'ashdfjhasdlkjfhalksdjhflak'
-    expiration: 3600
+    secretOrKey: 'fjdsaabjfjajjrtrtfjdfdsafs'
+    expiration: 432000 # 5 days
 
 server:
   port: 3000
