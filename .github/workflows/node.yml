@@ -30,6 +30,7 @@ jobs:
         working-directory: zkcream-api-server/zkcream-api-server/zkcream
         run: |
           yarn
+          npm install --save-dev git+https://github.com/kazuakiishiguro/libcream.git
           yarn build
           ./packages/circuits/scripts/installZkutil.sh
 
