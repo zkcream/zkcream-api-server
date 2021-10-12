@@ -3,7 +3,6 @@ import * as path from 'path'
 import appRoot from 'app-root-path'
 import * as ethers from 'ethers'
 import { execSync } from 'child_process'
-import { StateLeaf } from 'maci-domainobjs'
 
 const ff = require('ffjavascript')
 const tester = require('circom').tester

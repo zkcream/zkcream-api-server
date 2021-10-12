@@ -32,8 +32,8 @@ class App {
   private requireMiddleware = (path): Middleware => {
     if (process.env.NODE_ENV === 'development' || process.env.LOG_LEVEL) {
       console.log(`-> setup ${path}`)
-      this.app.use(async (next) => {
-        await next
+      this.app.use((next) => {
+        next
         console.log(`<- setup ${path}`, new Date())
       })
     }

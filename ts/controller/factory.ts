@@ -11,7 +11,7 @@ import S_Token from '../../abis/SignUpToken.json'
 import V_Token from '../../abis/VotingToken.json'
 
 const maciFactoryAddress = config.eth.contracts.maciFactory
-import Cream from '../../abis/Cream.json'
+
 import CreamFactory from '../../abis/CreamFactory.json'
 import MACIFactory from '../../abis/MACIFactory.json'
 
@@ -85,14 +85,14 @@ class FactoryController implements IController {
       ctx.body = logs.map((log) => {
         return [log.args['creamAddress'], log.args['ipfsHash']]
       })
-    } catch (e) {
+    } catch (e: any) {
       if (e.message === `Cannot read property 'getLogs' of null`) {
         ctx.body = {
           message: e.message,
         }
       } else {
-        ctx.throw(e)
         console.log(e.messsage, e.stack)
+        ctx.throw(e)
       }
     }
   }
