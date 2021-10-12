@@ -102,7 +102,11 @@ class FactoryController implements IController {
   private deployNewZkCream = async (ctx: Koa.Context) => {
     // Check if MACIFactory is owned by CreamFactory contract
     if ((await this.maciFactoryInstance.owner()) != this.creamFactoryAddress) {
-      await this.maciFactoryInstance.transferOwnership(this.creamFactoryAddress)
+      await this.maciFactoryInstance
+        .transferOwnership(this.creamFactoryAddress)
+        .then(async (tx: any) => {
+          await tx.wait()
+        })
     }
 
     // Deploy votingToken, signUpToken and creamVerifier

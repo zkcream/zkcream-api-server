@@ -9,7 +9,8 @@ RUN apk update && \
     curl \
     bash \
     wget \
-    build-base
+    build-base \
+    jq
 
 ARG NODE_ENV
 ENV NODE_ENV=$NODE_ENV
@@ -17,6 +18,9 @@ ENV NODE_ENV=$NODE_ENV
 COPY package.json .
 COPY tsconfig.json .
 COPY yarn.lock .
+
+RUN mkdir scripts
+COPY ./scripts/setAddress.sh ./scripts
 
 RUN yarn install --quiet && \
     yarn cache clean --force
@@ -33,7 +37,7 @@ COPY zkcream/*.lock /api-server/zkcream/
 COPY ts ts/
 COPY abis abis/
 
-RUN yarn 
+RUN yarn
 
 ###
 ENV NODE_ENV_BAK=$NODE_ENV
@@ -51,6 +55,9 @@ RUN cd zkcream/packages/circuits && \
 
 RUN cd zkcream/packages/contracts && \
     yarn migrate:docker
+
+## overwrite contract address
+RUN ./scripts/setAddress.sh
 
 RUN echo "Building api-server" && \
     yarn build

@@ -2,15 +2,15 @@
 env: 'docker'
 
 eth:
-  url: 'http://zkcream-ganache:8545'
+  url: 'http://zkcream-chain:8545'
   contracts:
-    creamFactory: '0x38cF23C52Bb4B13F051Aec09580a2dE845a7FA35'
-    maciFactory: '0x0d8cc4b8d15D4c3eF1d70af0071376fb26B5669b'
-
-  adminKey: '0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3'
+    creamFactory: '0x2445BC665aEfca58D2137BAf26A62Edb38cBC274' 
+    maciFactory: '0x059e17cEb15EF8470B7184B858D356317518aAB3'  
+  
+  adminKey: '0x9675f7569e4843509e4b1ed22a4dba4e4092bea1d5aa77d65f5d378f0fc454af'
 
   faucet:
-    address: '0x627306090abaB3A6e1400e9345bC60c78a8BEf57'
+    address: '0x6bbf87f75c84a18907db471941907899e3266214'
     password: ''
     value: '0x16345785D8A0000'
 
