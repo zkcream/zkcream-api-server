@@ -71,4 +71,4 @@ jobs:
       - name: Stop mongo db
         if: always()
         working-directory: zkcream-api-server/zkcream-api-server
-        run: docker-compose -f "docker/docker-compose.yml" down db
+        run: docker-compose -f "docker/docker-compose.yml" down
