@@ -37,6 +37,10 @@ jobs:
         working-directory: zkcream-api-server/zkcream-api-server/zkcream
         run: docker-compose -f "docker/docker-compose.yml" up -d
 
+      - name: Setup mongo db
+        working-directory: zkcream-api-server/zkcream-api-server
+        run: docker-compose -f "docker/docker-compose.yml" up db -d
+
       - name: Setup Contracts
         working-directory: zkcream-api-server/zkcream-api-server/zkcream
         run: |
