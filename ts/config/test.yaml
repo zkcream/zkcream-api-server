@@ -29,8 +29,8 @@ maci:
     voteOptionTreeDepth: 2
 
 ipfs:
-  url: 'http://50.19.146.202:5001'
-  #url: 'http://localhost:5001'
+  #url: 'http://50.19.146.202:5001'
+  url: 'http://localhost:5001'
 
 mongo:
   uri: 'mongodb://localhost:27017'
