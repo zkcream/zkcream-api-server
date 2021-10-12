@@ -19,9 +19,9 @@ services:
     container_name: zkcream-api
     working_dir: /api-server
     build:
-      context: ../  
+      context: ../
     environment:
-     - NODE_ENV=docker  
+     - NODE_ENV=docker
     command:
         yarn start
     ports:
