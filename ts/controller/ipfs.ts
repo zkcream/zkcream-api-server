@@ -3,6 +3,7 @@ import Koa from 'koa'
 
 import config from '../config'
 import { IController } from './interface'
+import { jwtauth } from './auth'
 
 const ipfsClient = require('ipfs-http-client')
 
@@ -15,10 +16,9 @@ class IpfsController implements IController {
   constructor() {}
 
   public router = (): Router => {
-    return this.Router.post('/', this.getHash.bind(this)).get(
-      '/:hash',
-      this.getDataFromHash.bind(this)
-    )
+    return this.Router.use(jwtauth)
+      .post('/', this.getHash.bind(this))
+      .get('/:hash', this.getDataFromHash.bind(this))
   }
 
   private getHash = async (ctx: Koa.Context) => {
