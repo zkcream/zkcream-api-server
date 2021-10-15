@@ -51,7 +51,6 @@ jobs:
         working-directory: zkcream-api-server/zkcream-api-server
         run: |
           yarn
-          npm install --save-dev git+https://github.com/kazuakiishiguro/libcream.git
           yarn build
 
       - name: Test
