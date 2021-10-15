@@ -1,5 +1,6 @@
 import Koa, { Middleware } from 'koa'
 import cors from '@koa/cors'
+import passport from 'koa-passport'
 
 import CreamController from './controller/cream'
 import EchoController from './controller/echo'
@@ -7,7 +8,9 @@ import FactoryController from './controller/factory'
 import IpfsController from './controller/ipfs'
 import MaciController from './controller/maci'
 import FaucetController from './controller/faucet'
+import UserController from './controller/user'
 import { middlewares } from './middlewares'
+import './db/mongo'
 
 class App {
   public app: Koa
@@ -51,6 +54,7 @@ class App {
     this.app.use(MaciController.routes())
     this.app.use(IpfsController.routes())
     this.app.use(FaucetController.routes())
+    this.app.use(UserController.routes())
   }
 }
 

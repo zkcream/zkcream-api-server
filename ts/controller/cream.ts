@@ -11,6 +11,8 @@ import S_Token from '../../abis/SignUpToken.json'
 import V_Token from '../../abis/VotingToken.json'
 import Cream from '../../abis/Cream.json'
 
+import { jwtauth } from './auth'
+
 const port = config.server.port
 
 // TEMP: use test circuit unless it's production
@@ -50,7 +52,8 @@ class CreamController implements IController {
   }
 
   public router = (): Router => {
-    return this.Router.get('/deposit/logs/:address', this.getLogs.bind(this))
+    return this.Router.use(jwtauth)
+      .get('/deposit/logs/:address', this.getLogs.bind(this))
       .get('/:address', this.getDetails.bind(this))
       .get('/:address/:voter', this.getTokenStatus.bind(this))
       .get('/tally/:address/:recipient', this.getTallyResult.bind(this))
@@ -92,12 +95,14 @@ class CreamController implements IController {
     const creamAddress = ctx.params.address
 
     // get the whole zkcream deployed logs
+    const Authorization = ctx.headers.authorization
+
     const url = 'http://localhost:' + port + '/factory/logs'
-    const r = await axios.get(url)
+    const r = await axios.get(url, { headers: { Authorization } })
 
     const ipfsHash = findHash(creamAddress, r.data)
     const url2 = 'http://localhost:' + port + '/ipfs/' + ipfsHash
-    const r2 = await axios.get(url2)
+    const r2 = await axios.get(url2, { headers: { Authorization } })
 
     const creamInstance = new ethers.Contract(
       creamAddress,

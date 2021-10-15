@@ -2,15 +2,34 @@ import axios from 'axios'
 import { ethers, BigNumber } from 'ethers'
 import app from '../app'
 import config from '../config'
-import { get, post } from './utils'
+import {
+  get,
+  post,
+  register,
+  login,
+  testonlyuser,
+  getWithToken,
+  postWithToken,
+} from './utils'
+import { User } from '../model/user'
+import mongoose from 'mongoose'
 
 const port = config.server.port
 
 let server
+let token
 
 describe('Server API', () => {
   beforeAll(async () => {
+    await User.findOneAndDelete({ username: testonlyuser }).exec()
     server = app.listen(port)
+    await register()
+    const r = await login()
+    token = r.data.token
+  })
+
+  test('logged in? -> should have token', async () => {
+    expect(token).toHaveLength
   })
 
   test('GET /:msg -> should echo msg', async () => {
@@ -24,7 +43,7 @@ describe('Server API', () => {
       msg: 'zkCREAM',
     }
     const e = 'QmeT5VjyMrbL5HPHxy4UkjR5pijPhbHsV9w5T9MRDwEnkf'
-    const r = await post('ipfs', data)
+    const r = await postWithToken('ipfs', data, token)
     expect(e).toEqual(r.data.path)
   })
 
@@ -33,7 +52,7 @@ describe('Server API', () => {
     const e = {
       msg: 'zkCREAM',
     }
-    const r = await get('ipfs/' + hash)
+    const r = await getWithToken('ipfs/' + hash, token)
     expect(e).toEqual(r.data)
   })
 
@@ -51,7 +70,7 @@ describe('Server API', () => {
 
     const before: BigNumber = ethers.BigNumber.from(r1.data.result)
 
-    const r = await post('faucet/', { to: to })
+    await postWithToken('faucet/', { to: to }, token)
 
     id = id + 1
     const r2 = await axios.post(config.eth.url, {
@@ -66,7 +85,18 @@ describe('Server API', () => {
     expect(before.add(value).eq(after))
   })
 
+  test('POST /faucet without token -> request should fail with 401', async () => {
+    const to = '0xf17f52151ebef6c7334fad080c5704d77216b732'
+    try {
+      await post('faucet/', { to: to })
+    } catch (e: any) {
+      expect(e.message).toEqual('Request failed with status code 401')
+    }
+  })
+
   afterAll(async () => {
-    server.close()
+    await User.findOneAndDelete({ username: testonlyuser }).exec()
+    await mongoose.connection.close()
+    await server.close()
   })
 })

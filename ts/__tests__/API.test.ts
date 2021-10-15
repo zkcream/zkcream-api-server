@@ -16,13 +16,21 @@ import { Keypair, PrivKey } from 'maci-domainobjs'
 
 import app from '../app'
 import config from '../config'
-import { get, post } from './utils'
+import {
+  register,
+  login,
+  testonlyuser,
+  getWithToken,
+  postWithToken,
+} from './utils'
+import { User } from '../model/user'
 
 import V_Token from '../../abis/VotingToken.json'
 import Cream from '../../abis/Cream.json'
 import MACI from '../../abis/MACI.json'
 
 import { TokenType } from '../controller/cream'
+import mongoose from 'mongoose'
 
 const port = config.server.port
 const coordinatorPrivKey =
@@ -44,17 +52,22 @@ let maciAddress
 let maciInstance
 let voter
 let votingSigner
+let token
 
 describe('Cream contract interaction API', () => {
   beforeAll(async () => {
+    await User.findOneAndDelete({ username: testonlyuser }).exec()
     server = app.listen(port)
+    await register()
+    const r = await login()
+    token = r.data.token
   })
 
   /* =======================================================
    * Factory part test
    */
   test('GET /factory/logs -> should return deployed zkcream contracts', async () => {
-    const r = await get('factory/logs')
+    const r = await getWithToken('factory/logs', token)
 
     // r.data should either error object or string[]
     expect('object').toEqual(typeof r.data)
@@ -71,7 +84,7 @@ describe('Cream contract interaction API', () => {
       ],
     }
 
-    const hash = await post('ipfs', election)
+    const hash = await postWithToken('ipfs', election, token)
 
     const data = {
       initial_voice_credit_balance: 100,
@@ -82,13 +95,13 @@ describe('Cream contract interaction API', () => {
       ipfsHash: hash.data.path,
     }
 
-    const r = await post('factory/deploy', data)
+    const r = await postWithToken('factory/deploy', data, token)
     expect(r.data.status).toBeTruthy()
     expect(r.data.events[r.data.events.length - 1].event).toEqual(
       'CreamCreated'
     )
 
-    const logs = await get('factory/logs')
+    const logs = await getWithToken('factory/logs', token)
     expect(logs.data.length > 0).toBeTruthy()
 
     const deployedHash = logs.data[logs.data.length - 1][1] // [address, hash]
@@ -99,9 +112,9 @@ describe('Cream contract interaction API', () => {
    * Cream part test
    */
   test('GET /zkcream/:address -> should return contract details', async () => {
-    const logs = await get('factory/logs')
+    const logs = await getWithToken('factory/logs', token)
     zkCreamAddress = logs.data[logs.data.length - 1][0] // get last deployed address
-    const r = await get('zkcream/' + zkCreamAddress)
+    const r = await getWithToken('zkcream/' + zkCreamAddress, token)
     election.approved = false
     election.tallyHash = ''
     election.maciAddress = null
@@ -117,7 +130,10 @@ describe('Cream contract interaction API', () => {
   test('GET /zkcream/:address/:voter -> should return correct initial status', async () => {
     voter = '0xC5fdf4076b8F3A5357c5E395ab970B5B54098Fef'
 
-    const r = await get('zkcream/' + zkCreamAddress + '/' + voter)
+    const r = await getWithToken(
+      'zkcream/' + zkCreamAddress + '/' + voter,
+      token
+    )
 
     expect(r.data.holdingToken).toEqual(0)
     expect(r.data.isApproved).toEqual(0)
@@ -146,7 +162,7 @@ describe('Cream contract interaction API', () => {
     }
 
     // assert token status
-    r = await get('zkcream/' + zkCreamAddress + '/' + voter)
+    r = await getWithToken('zkcream/' + zkCreamAddress + '/' + voter, token)
     expect(r.data.holdingToken).toEqual(1)
 
     // deposit token
@@ -155,7 +171,7 @@ describe('Cream contract interaction API', () => {
     await votingTokenInstance.setApprovalForAll(zkCreamAddress, true)
 
     // assert token approval
-    r = await get('zkcream/' + zkCreamAddress + '/' + voter)
+    r = await getWithToken('zkcream/' + zkCreamAddress + '/' + voter, token)
     expect(r.data.isApproved).toBeTruthy()
 
     tx = await zkCreamInstance.deposit(toHex(deposit.commitment))
@@ -165,7 +181,7 @@ describe('Cream contract interaction API', () => {
       console.error('[deposit] error')
     }
 
-    r = await get('zkcream/deposit/logs/' + zkCreamAddress)
+    r = await getWithToken('zkcream/deposit/logs/' + zkCreamAddress, token)
     expect(r.data[0][0]).toEqual(toHex(deposit.commitment))
   })
 
@@ -178,7 +194,8 @@ describe('Cream contract interaction API', () => {
     const { root, merkleProof } = await generateMerkleProof(
       deposit,
       zkCreamAddress,
-      params
+      params,
+      token
     )
 
     const input = {
@@ -196,7 +213,7 @@ describe('Cream contract interaction API', () => {
       ),
     }
 
-    const formattedProof = await post('zkcream/genproof', data)
+    const formattedProof = await postWithToken('zkcream/genproof', data, token)
 
     userKeypair = new Keypair()
     const userPubKey = userKeypair.pubKey.asContractParam()
@@ -213,7 +230,10 @@ describe('Cream contract interaction API', () => {
 
     // voter owns signUp token
     const voter = '0xC5fdf4076b8F3A5357c5E395ab970B5B54098Fef'
-    const r2 = await get('zkcream/' + zkCreamAddress + '/' + voter)
+    const r2 = await getWithToken(
+      'zkcream/' + zkCreamAddress + '/' + voter,
+      token
+    )
 
     expect(r2.data.holdingToken).toEqual(TokenType.SIGNUP)
   })
@@ -258,7 +278,7 @@ describe('Cream contract interaction API', () => {
     //   BigInt(nonce)
     // )
 
-    r = await get('maci/params/' + maciAddress)
+    r = await getWithToken('maci/params/' + maciAddress, token)
 
     const {
       stateTreeDepth,
@@ -297,7 +317,7 @@ describe('Cream contract interaction API', () => {
         tally: ['1', '0'],
       },
     }
-    const r_hash = await post('ipfs', result)
+    const r_hash = await postWithToken('ipfs', result, token)
 
     const coordinatorSigner = provider.getSigner(coordinatorAddress)
     zkCreamInstance = zkCreamInstance.connect(coordinatorSigner)
@@ -307,8 +327,8 @@ describe('Cream contract interaction API', () => {
 
     expect(r.events[0].event).toEqual('TallyPublished')
 
-    const r2 = await get('zkcream/' + zkCreamAddress)
-    const r2_obj = await get('ipfs/' + r2.data.tallyHash)
+    const r2 = await getWithToken('zkcream/' + zkCreamAddress, token)
+    const r2_obj = await getWithToken('ipfs/' + r2.data.tallyHash, token)
     expect(r2_obj.data).toEqual(result)
   })
 
@@ -317,7 +337,11 @@ describe('Cream contract interaction API', () => {
       owner: '0x627306090abaB3A6e1400e9345bC60c78a8BEf57',
     }
 
-    const r = await post('zkcream/approve/' + zkCreamAddress, data)
+    const r = await postWithToken(
+      'zkcream/approve/' + zkCreamAddress,
+      data,
+      token
+    )
     expect(r.data.events[0].event).toEqual('TallyApproved')
   })
 
@@ -329,7 +353,7 @@ describe('Cream contract interaction API', () => {
     const hash = await zkCreamInstance.tallyHash()
     const recipients = await zkCreamInstance.getRecipients()
 
-    const r_tally = await get('ipfs/' + hash)
+    const r_tally = await getWithToken('ipfs/' + hash, token)
     const resultsArr = r_tally.data.results.tally
 
     for (let i = 0; i < recipients.length; i++) {
@@ -343,13 +367,16 @@ describe('Cream contract interaction API', () => {
     }
 
     // check if recipients received a token
-    const r2 = await get(
-      'zkcream/tally/' + zkCreamAddress + '/' + election.recipients[0]
+    const r2 = await getWithToken(
+      'zkcream/tally/' + zkCreamAddress + '/' + election.recipients[0],
+      token
     )
     expect(r2.data).toEqual(1)
   })
 
   afterAll(async () => {
-    server.close()
+    await User.findOneAndDelete({ username: testonlyuser }).exec()
+    await mongoose.connection.close()
+    await server.close()
   })
 })

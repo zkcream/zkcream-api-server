@@ -37,6 +37,10 @@ jobs:
         working-directory: zkcream-api-server/zkcream-api-server/zkcream
         run: docker-compose -f "docker/docker-compose.yml" up -d
 
+      - name: Setup mongo db
+        working-directory: zkcream-api-server/zkcream-api-server
+        run: docker-compose -f "docker/docker-compose.yml" up -d db
+
       - name: Setup Contracts
         working-directory: zkcream-api-server/zkcream-api-server/zkcream
         run: |
@@ -61,4 +65,4 @@ jobs:
       - name: Stop container
         if: always()
         working-directory: zkcream-api-server/zkcream-api-server/zkcream
-        run: docker-compose -f "docker/docker-compose.yml" down
+        run: docker-compose -f "docker/docker-compose.yml" down --remove-orphans
