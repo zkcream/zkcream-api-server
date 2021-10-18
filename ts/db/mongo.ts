@@ -25,7 +25,7 @@ const mongo = () => {
   })
 
   const run = async () => {
-    await mongoose.connect(config.mongo.uri, {
+    await mongoose.connect(config.mongo.uri + '/' + config.mongo.db, {
       keepAlive: true,
       useNewUrlParser: true,
       useUnifiedTopology: true,

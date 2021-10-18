@@ -22,6 +22,7 @@ class UserController implements IController {
   }
 
   public registerUser = async (ctx: Koa.Context): Promise<void> => {
+    console.log(ctx.request.body)
     const user = await User.findOne({
       username: ctx.request.body.username,
     }).exec()

@@ -33,6 +33,7 @@ ipfs:
   url: 'http://localhost:5001'
 
 mongo:
+  db: zkcream
   uri: 'mongodb://localhost:27017'
 
 auth:
