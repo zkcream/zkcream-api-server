@@ -25,11 +25,17 @@ const mongo = () => {
   })
 
   const run = async () => {
-    await mongoose.connect(config.mongo.uri + '/' + config.mongo.db, {
-      keepAlive: true,
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    })
+    console.log(
+      `mongodb://${config.mongo.user}:${config.mongo.password}@${config.mongo.host}:${config.mongo.port}/${config.mongo.db}`
+    )
+    await mongoose.connect(
+      `mongodb://${config.mongo.user}:${config.mongo.password}@${config.mongo.host}:${config.mongo.port}/${config.mongo.db}`,
+      {
+        keepAlive: true,
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+      }
+    )
   }
 
   run().catch((error) => console.error(error))
