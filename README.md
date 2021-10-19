@@ -91,7 +91,9 @@ cd ../ # project's top directory
 yarn test
 ```
 
-## Create Admin User
+## Create API Admin User
+*Only API admin user can create a new API user*
+
 1. Temporarily replace `secretOrKey` within `config/test.yaml` with the key for production
 ```
 auth:
@@ -113,7 +115,6 @@ ZK_MONGO_PASS={password for zkcream db owner}
 ADMIN_USER={username for API admin user}
 ADMIN_PASS={password for API admin user}
 ```
-*Only API admin user can create a new user*
 
 4. Run script (Run app in test environment)
 ``` bash
