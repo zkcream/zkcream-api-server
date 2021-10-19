@@ -1,6 +1,6 @@
 #!/bin/sh
 
-echo 'Create the first application user for mongo db'
+echo 'Create application db owner'
 
 mongo ${ZK_MONGO_DB} \
         --host localhost \

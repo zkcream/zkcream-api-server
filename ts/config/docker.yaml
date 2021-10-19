@@ -35,7 +35,7 @@ mongo:
   db: zkcream
   user:
   password:
-  host: localhost
+  host: db
   port: 27017
 
 auth:

@@ -90,3 +90,34 @@ yarn workspace @cream/contracts migrate
 cd ../ # project's top directory 
 yarn test
 ```
+
+## Create Admin User
+1. Temporarily replace `secretOrKey` within `config/test.yaml` with the key for production
+```
+auth:
+  jwt:
+    secretOrKey: ''
+```
+
+2. Put the same key in `secretOrKey` within `config/prod.yaml`
+
+3. Prepare `./docker/.env`
+```
+MONGO_ROOT_USERNAME={root username for mongo db}
+MONGO_ROOT_PASSWORD={root password for mongo db}
+MONGO_HOST=localhost
+MONGO_PORT=27017
+ZK_MONGO_DB=zkcream
+ZK_MONGO_USER={username for zkcream db owner}
+ZK_MONGO_PASS={password for zkcream db owner}
+ADMIN_USER={username for API admin user}
+ADMIN_PASS={password for API admin user}
+```
+*Only API admin user can create a new user*
+
+4. Run script (Run app in test environment)
+``` bash
+$ sh scripts/createAdminUser.sh
+```
+
+5. Undo the change in `secretOrKey` within `config/test.yaml`

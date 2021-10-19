@@ -25,9 +25,6 @@ const mongo = () => {
   })
 
   const run = async () => {
-    console.log(
-      `mongodb://${config.mongo.user}:${config.mongo.password}@${config.mongo.host}:${config.mongo.port}/${config.mongo.db}`
-    )
     await mongoose.connect(
       `mongodb://${config.mongo.user}:${config.mongo.password}@${config.mongo.host}:${config.mongo.port}/${config.mongo.db}`,
       {

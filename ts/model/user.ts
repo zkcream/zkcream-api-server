@@ -31,7 +31,10 @@ userSchema.pre<IUser>('save', function save(next) {
         return next(err)
       }
       user.password = hash
-      user.role = userType.USER
+
+      if (!user.role) {
+        user.role = userType.USER
+      }
       next()
     })
   })

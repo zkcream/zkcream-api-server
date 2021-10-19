@@ -22,7 +22,6 @@ class UserController implements IController {
   }
 
   public registerUser = async (ctx: Koa.Context): Promise<void> => {
-    console.log(ctx.request.body)
     const user = await User.findOne({
       username: ctx.request.body.username,
     }).exec()
@@ -33,6 +32,7 @@ class UserController implements IController {
     await User.create({
       username: ctx.request.body.username,
       password: ctx.request.body.password,
+      role: ctx.request.body.role,
     })
 
     const token = jwt.sign(
