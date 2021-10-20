@@ -24,10 +24,43 @@ cd zkcream-api-server && \
 git submodule update --init
 ```
 
-2. Build Docker
 
+2. Envrionment setup
+* Put secret key for JWT based authentication in `auth.jwt.secretOrKey` within `config/docker.yaml`
+* Create `./docker/.env`
+  ```
+  cat docker/.env.sample > ./docker/.env
+  ```
+
+* Set environment variables necessary for db
+  ```
+  MONGO_ROOT_USERNAME={root username for mongo db}
+  MONGO_ROOT_PASSWORD={root password for mongo db}
+  MONGO_HOST=localhost
+  MONGO_PORT=27017
+  ZK_MONGO_DB=zkcream
+  ZK_MONGO_USER={username for zkcream db owner}
+  ZK_MONGO_PASS={password for zkcream db owner}
+  ADMIN_USER={username for API admin user}
+  ADMIN_PASS={password for API admin user}
+  ```
+* Put the same value of above `ZK_MONGO_USER` and `ZK_MONGO_PASS` in `mongo.user` and `mongo.password` within `config/docker.yaml`
+
+
+3. Build Docker
 ```bash
 ./scripts/buildDev.sh
+
+# create admin api user
+./scripts/createAdminUserForDocker.sh
+
+# create new API user
+./scripts/createUserForDocker.sh {admin username} {admin user password} {new username}
+
+# Successful output
+# New user created successfully!
+# useraname: ..., password: ...
+
 ./scripts/start.sh
 ```
 
@@ -58,11 +91,43 @@ yarn
 yarn build
 ```
 
-3. Build and run api server
+3. Envrionment setup (For production, please do the same with config/prod.yaml instead of config/test.yaml)
+* Put secret key for JWT based authentication in `auth.jwt.secretOrKey` within `config/test.yaml`
+* Create `./docker/.env`
+  ```
+  cat docker/.env.sample > ./docker/.env
+  ```
+
+* Set environment variables necessary for db
+  ```
+  MONGO_ROOT_USERNAME={root username for mongo db}
+  MONGO_ROOT_PASSWORD={root password for mongo db}
+  MONGO_HOST=localhost
+  MONGO_PORT=27017
+  ZK_MONGO_DB=zkcream
+  ZK_MONGO_USER={username for zkcream db owner}
+  ZK_MONGO_PASS={password for zkcream db owner}
+  ADMIN_USER={username for API admin user}
+  ADMIN_PASS={password for API admin user}
+  ```
+* Put the same value of above `ZK_MONGO_USER` and `ZK_MONGO_PASS` in `mongo.user` and `mongo.password` within `config/test.yaml`
+
+4. Build and run api server
 
 ```bash
 cd ../ # project's top directory 
 yarn build
+
+# create admin api user
+./scripts/createAdminUser.sh
+
+# create new API user
+./scripts/createUser.sh {admin username} {admin user password} {new username}
+
+# Successful output
+# New user created successfully!
+# useraname: ..., password: ...
+
 yarn run # running at port 3000
 ```
 
@@ -84,41 +149,10 @@ yarn start:ipfs
 yarn workspace @cream/contracts migrate
 ```
 
-2. Then, you can run test command as follows:
+2. Then, after running MongoDB, you can run test command as follows:
 
 ```bash
 cd ../ # project's top directory 
+yarn start:db
 yarn test
 ```
-
-## Create API Admin User
-*Only API admin user can create a new API user*
-
-1. Temporarily replace `secretOrKey` within `config/test.yaml` with the key for production
-```
-auth:
-  jwt:
-    secretOrKey: ''
-```
-
-2. Put the same key in `secretOrKey` within `config/prod.yaml`
-
-3. Prepare `./docker/.env`
-```
-MONGO_ROOT_USERNAME={root username for mongo db}
-MONGO_ROOT_PASSWORD={root password for mongo db}
-MONGO_HOST=localhost
-MONGO_PORT=27017
-ZK_MONGO_DB=zkcream
-ZK_MONGO_USER={username for zkcream db owner}
-ZK_MONGO_PASS={password for zkcream db owner}
-ADMIN_USER={username for API admin user}
-ADMIN_PASS={password for API admin user}
-```
-
-4. Run script (Run app in test environment)
-``` bash
-$ sh scripts/createAdminUser.sh
-```
-
-5. Undo the change in `secretOrKey` within `config/test.yaml`
