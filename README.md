@@ -116,7 +116,7 @@ yarn build
 4. Build and run api server
 
 ```bash
-# Check if you are on ./zkcream-api-server
+# Check if you are on zkcream-api-server directory
 yarn
 yarn build
 
