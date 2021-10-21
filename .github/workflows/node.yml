@@ -33,13 +33,12 @@ jobs:
           yarn build
           ./packages/circuits/scripts/installZkutil.sh
 
-      - name: Setup ipfs
-        working-directory: zkcream-api-server/zkcream-api-server/zkcream
-        run: docker-compose -f "docker/docker-compose.yml" up -d
-
-      - name: Setup mongo db
+      - name: Setup mongo and ipfs
         working-directory: zkcream-api-server/zkcream-api-server
-        run: docker-compose -f "docker/docker-compose.yml" up -d db
+        run: |
+          cat docker/.env.sample > ./docker/.env
+          sed -i -e 's/%ROOT/root/' -e 's/%HOST/localhost/' -e 's/%PORT/27017/' -e 's/%DB/zkcream/' -e 's/%USER/zkuser/' -e 's/%ADMIN/admin/' ./docker/.env
+          docker-compose -f "docker/docker-compose.yml" up -d zkcream-ipfs db
 
       - name: Setup Contracts
         working-directory: zkcream-api-server/zkcream-api-server/zkcream

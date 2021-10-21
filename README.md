@@ -24,10 +24,49 @@ cd zkcream-api-server && \
 git submodule update --init
 ```
 
-2. Build Docker
+
+2. Envrionment setup
+
+* Put secret key for JWT based authentication in `auth.jwt.secretOrKey` within `config/docker.yaml`
+* Create `./docker/.env` and edit your env file
+
+```bash
+cat docker/.env.sample > ./docker/.env
+vi ./docker/.env
+```
+
+* Set environment variables necessary for db
+
+```
+MONGO_ROOT_USERNAME={root username for mongo db}
+MONGO_ROOT_PASSWORD={root password for mongo db}
+MONGO_HOST=localhost
+MONGO_PORT=27017
+ZK_MONGO_DB=zkcream
+ZK_MONGO_USER={username for zkcream db owner}
+ZK_MONGO_PASS={password for zkcream db owner}
+ADMIN_USER={username for API admin user}
+ADMIN_PASS={password for API admin user}
+```
+
+* Put the same value of above `ZK_MONGO_USER` and `ZK_MONGO_PASS` in `mongo.user` and `mongo.password` within `config/docker.yaml`
+
+
+3. Build Docker
 
 ```bash
 ./scripts/buildDev.sh
+
+# create admin api user
+./scripts/createAdminUserForDocker.sh
+
+# create new API user
+./scripts/createUserForDocker.sh {admin username} {admin user password} {new username}
+
+# Successful output
+# New user created successfully!
+# useraname: ..., password: ...
+
 ./scripts/start.sh
 ```
 
@@ -58,19 +97,57 @@ yarn
 yarn build
 ```
 
-3. Build and run api server
+3. Envrionment setup (For production, please do the same with config/prod.yaml instead of config/test.yaml)
+* Put secret key for JWT based authentication in `auth.jwt.secretOrKey` within `config/test.yaml`
+* Create `./docker/.env` and edit your env file
 
 ```bash
-cd ../ # project's top directory 
+cd ../ # project's top directory
+cat docker/.env.sample > ./docker/.env
+vi ./docker/.env
+```
+
+* Set environment variables necessary for db
+
+```
+MONGO_ROOT_USERNAME={root username for mongo db}
+MONGO_ROOT_PASSWORD={root password for mongo db}
+MONGO_HOST=localhost
+MONGO_PORT=27017
+ZK_MONGO_DB=zkcream
+ZK_MONGO_USER={username for zkcream db owner}
+ZK_MONGO_PASS={password for zkcream db owner}
+ADMIN_USER={username for API admin user}
+ADMIN_PASS={password for API admin user}
+```
+
+* Put the same value of above `ZK_MONGO_USER` and `ZK_MONGO_PASS` in `mongo.user` and `mongo.password` within `config/test.yaml`
+
+4. Build and run api server
+
+```bash
+# Check if you are on zkcream-api-server directory
+yarn
 yarn build
-yarn run # running at port 3000
+
+# create admin api user
+./scripts/createAdminUser.sh
+
+# create new API user
+./scripts/createUser.sh {admin username} {admin user password} {new username}
+
+# Successful output
+# New user created successfully!
+# useraname: ..., password: ...
+
+yarn start # running at port 3000
 ```
 
 Then access `{HOST}:{PORT}` `http://localhost:3000` for a test environment. You can change the hostname and port number customising the [config](https://github.com/zkcream/zkcream-api-server/tree/master/ts/config) file.
 
 ## Test
 
-1. You need to run `ganche` and `ipfs` node and finally migrate the contracts by typing
+1. You need to run `ganache` and `ipfs` node and finally migrate the contracts by typing
 
 ```bash
 cd zkcream
@@ -84,9 +161,10 @@ yarn start:ipfs
 yarn workspace @cream/contracts migrate
 ```
 
-2. Then, you can run test command as follows:
+2. Then, after running MongoDB, you can run test command as follows:
 
 ```bash
 cd ../ # project's top directory 
+yarn start:db
 yarn test
 ```

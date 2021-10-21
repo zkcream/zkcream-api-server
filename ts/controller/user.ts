@@ -32,6 +32,7 @@ class UserController implements IController {
     await User.create({
       username: ctx.request.body.username,
       password: ctx.request.body.password,
+      role: ctx.request.body.role,
     })
 
     const token = jwt.sign(

@@ -32,7 +32,11 @@ ipfs:
   url:
 
 mongo:
-  uri: 'mongodb://localhost:27017'
+  db: zkcream
+  user:
+  password:
+  host: localhost
+  port: 27017
 
 auth:
   saltrounds: 10

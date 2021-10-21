@@ -26,12 +26,15 @@ userSchema.pre<IUser>('save', function save(next) {
     if (err) {
       return next(err)
     }
-    bcrypt.hash(this.password, salt, (err: Error, hash) => {
+    bcrypt.hash(user.password, salt, (err: Error, hash) => {
       if (err) {
         return next(err)
       }
       user.password = hash
-      user.role = userType.USER
+
+      if (!user.role) {
+        user.role = userType.USER
+      }
       next()
     })
   })

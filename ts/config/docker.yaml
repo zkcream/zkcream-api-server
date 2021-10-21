@@ -31,6 +31,19 @@ maci:
 ipfs:
   url: 'http://zkcream-ipfs:5001'
 
+mongo:
+  db: zkcream
+  user:
+  password:
+  host: db
+  port: 27017
+
+auth:
+  saltrounds: 10
+  jwt:
+    secretOrKey:
+    expiration: 432000 # 5 days
+
 server:
   port: 3000
   host: 'http://zkcream-api:3000'
