@@ -26,19 +26,18 @@ TOKEN="$(curl -s -X POST curl -X POST -d "username=${ADM_API_USER}" -d "password
 # create new API user
 RESULT="$(curl -s -w "%{http_code}" -o /dev/null -H "Content-Type: application/json" -H "Authorization: Bearer ${TOKEN}" -X POST -d '{"username": "'$NEW_API_USER'", "password": "'$NEW_API_USER_PASS'"}' http://localhost:3000/user/register)"
 
-
-# stop containers
-docker-compose -f docker/docker-compose.yml down
-
-
 # show results
 if [ $RESULT == 200 ]; then
     echo "New user created successfully!"
     echo "useraname: $NEW_API_USER, password: $NEW_API_USER_PASS"
-    exit 0
 elif [ $RESULT == 401 ]; then
     echo "User already exists..."
 else
     echo "Failed..."
     exit 1
 fi
+
+# stop containers
+docker-compose -f docker/docker-compose.yml down
+
+exit 0

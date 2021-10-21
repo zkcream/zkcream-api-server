@@ -25,19 +25,19 @@ TOKEN="$(curl -s -X POST curl -X POST -d "username=${ADM_API_USER}" -d "password
 RESULT="$(curl -s -w "%{http_code}" -o /dev/null -H "Content-Type: application/json" -H "Authorization: Bearer ${TOKEN}" -X POST -d '{"username": "'$NEW_API_USER'", "password": "'$NEW_API_USER_PASS'"}' http://localhost:3000/user/register)"
 
 
-# stop containers and kill process
-docker-compose -f docker/docker-compose.yml down
-kill -9 $(ps aux | grep '[n]ode ./build/ts/index.js' | awk '{print $2}')
-
-
 # show results
 if [ $RESULT == 200 ]; then
     echo "New user created successfully!"
     echo "useraname: $NEW_API_USER, password: $NEW_API_USER_PASS"
-    exit 0
 elif [ $RESULT == 401 ]; then
     echo "User already exists..."
 else
     echo "Failed..."
     exit 1
 fi
+
+# stop containers and kill process
+docker-compose -f docker/docker-compose.yml down
+kill -9 $(ps aux | grep '[n]ode ./build/ts/index.js' | awk '{print $2}')
+
+exit 0
