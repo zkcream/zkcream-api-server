@@ -3,4 +3,4 @@
 cd $(dirname $0)
 cd ..
 
-rm -rf docker/.data
+rm -rf docker/mongo/.data
