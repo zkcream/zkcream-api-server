@@ -95,6 +95,7 @@ yarn build
 * Put secret key for JWT based authentication in `auth.jwt.secretOrKey` within `config/test.yaml`
 * Create `./docker/.env`
   ```
+  cd ../ # project's top directory
   cat docker/.env.sample > ./docker/.env
   ```
 
@@ -115,7 +116,8 @@ yarn build
 4. Build and run api server
 
 ```bash
-cd ../ # project's top directory 
+# Check if you are on ./zkcream-api-server
+yarn
 yarn build
 
 # create admin api user
@@ -128,7 +130,7 @@ yarn build
 # New user created successfully!
 # useraname: ..., password: ...
 
-yarn run # running at port 3000
+yarn start # running at port 3000
 ```
 
 Then access `{HOST}:{PORT}` `http://localhost:3000` for a test environment. You can change the hostname and port number customising the [config](https://github.com/zkcream/zkcream-api-server/tree/master/ts/config) file.
