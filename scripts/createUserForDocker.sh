@@ -8,7 +8,7 @@ fi
 ADM_API_USER=$1
 ADM_API_PASS=$2
 NEW_API_USER=$3
-NEW_API_USER_PASS=$(more /dev/urandom  | tr -d -c '[:alnum:]' | fold -w 20 | head -1)
+NEW_API_USER_PASS=$(cat /dev/urandom | base64 | fold -w 20 | head -n 1)
 
 source ./docker/.env
 
@@ -34,7 +34,6 @@ elif [ $RESULT == 401 ]; then
     echo "User already exists..."
 else
     echo "Failed..."
-    exit 1
 fi
 
 # stop containers
