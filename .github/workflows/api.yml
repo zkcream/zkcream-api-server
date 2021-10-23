@@ -1,0 +1,80 @@
+name: server test
+
+on: [push]
+
+jobs:
+  buld:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [14.x]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          path: zkcream-api-server/zkcream-api-server
+          submodules: true
+
+      - name: SetUp node-version ${{ matrix.node-version }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install yarn
+        run: |
+          npm install -g yarn
+
+      - name: Initialize zkCREAM
+        working-directory: zkcream-api-server/zkcream-api-server/zkcream
+        run: |
+          yarn
+          yarn build
+          ./packages/circuits/scripts/installZkutil.sh
+      
+      - name: Install libraies for rapisnark
+        run: |
+          sudo apt install build-essential
+          sudo apt-get install libgmp-dev
+          sudo apt-get install libsodium-dev
+          sudo apt-get install nasm
+
+      - name: Setup for rapidsnark
+        working-directory: zkcream-api-server/zkcream-api-server/rapidsnark
+        run: |
+          npm install
+          git submodule init
+          git submodule update
+          npx task createFieldSources
+          npx task buildProver
+
+      - name: Setup ipfs
+        working-directory: zkcream-api-server/zkcream-api-server/zkcream
+        run: docker-compose -f "docker/docker-compose.yml" up -d
+
+      - name: Setup Contracts
+        working-directory: zkcream-api-server/zkcream-api-server/zkcream
+        run: |
+          yarn workspace @cream/contracts ganache > /dev/null & echo "GANACHE_PID=$(echo $!)" >> $GITHUB_ENV
+          yarn workspace @cream/contracts migrate
+
+      - name: Install
+        working-directory: zkcream-api-server/zkcream-api-server
+        run: |
+          yarn
+          yarn build
+
+      - name: Test
+        working-directory: zkcream-api-server/zkcream-api-server
+        run: |
+          yarn test
+
+      - name: Kill Ganache
+        run: |
+          kill ${{ env.GANACHE_PID }}
+
+      - name: Stop container
+        if: always()
+        working-directory: zkcream-api-server/zkcream-api-server/zkcream
+        run: docker-compose -f "docker/docker-compose.yml" down
