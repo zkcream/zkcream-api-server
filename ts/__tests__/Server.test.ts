@@ -32,6 +32,11 @@ describe('Server API', () => {
     expect(token).toHaveLength
   })
 
+  test('verify -> should be verified without error', async () => {
+    const r = await getWithToken('user/verify', token)
+    expect(r.status).toEqual(200)
+  })
+
   test('GET /:msg -> should echo msg', async () => {
     const e = 'zkCREAM'
     const r = await get(e)
