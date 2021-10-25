@@ -8,6 +8,7 @@ import config from '../config'
 import passport from 'koa-passport'
 import '../middlewares/passport'
 import { adminauth } from './auth'
+import { jwtauth } from './auth'
 
 class UserController implements IController {
   private Router = new Router({
@@ -15,10 +16,9 @@ class UserController implements IController {
   })
 
   public router = (): Router => {
-    return this.Router.post('/register', adminauth, this.registerUser).post(
-      '/login',
-      this.authenticateUser
-    )
+    return this.Router.post('/register', adminauth, this.registerUser)
+      .post('/login', this.authenticateUser)
+      .get('/verify', jwtauth, this.verify)
   }
 
   public registerUser = async (ctx: Koa.Context): Promise<void> => {
@@ -65,6 +65,10 @@ class UserController implements IController {
         ctx.status = 200
       }
     })(ctx)
+  }
+
+  public verify = (ctx: Koa.Context) => {
+    ctx.status = 200
   }
 }
 
