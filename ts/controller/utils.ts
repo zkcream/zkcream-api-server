@@ -144,11 +144,6 @@ export const genProofAndPublicSignals = async (
   // snrakjs wej [witness.wtns] [witness.json]
   execSync(`${snarkjsCmd} wej ${wtnsPath} ${witnessJsonPath}`)
 
-  // snarkjs g16p [.zkey] [witness.wtns] [proof.json] [public.json]
-  // execSync(
-  //   `${snarkjsCmd} g16p ${zkeyPath} ${wtnsPath} ${proofPath} ${publicJsonPath} `
-  // )
-
   // ./rapidsnark/build/prover [.zkey] [witness.wtns] [proof.json] [public.json]
   execSync(
     `${rapidSnarkCmd} ${zkeyPath} ${wtnsPath} ${proofPath} ${publicJsonPath}`
