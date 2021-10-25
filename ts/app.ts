@@ -1,6 +1,5 @@
 import Koa, { Middleware } from 'koa'
 import cors from '@koa/cors'
-import passport from 'koa-passport'
 
 import CreamController from './controller/cream'
 import EchoController from './controller/echo'

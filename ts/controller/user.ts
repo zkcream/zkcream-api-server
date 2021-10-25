@@ -7,8 +7,7 @@ import { User } from '../model/user'
 import config from '../config'
 import passport from 'koa-passport'
 import '../middlewares/passport'
-import { adminauth } from './auth'
-import { jwtauth } from './auth'
+import { adminauth, jwtauth } from './auth'
 
 class UserController implements IController {
   private Router = new Router({
