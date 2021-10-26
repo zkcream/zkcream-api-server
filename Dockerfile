@@ -1,15 +1,39 @@
 ARG NODE_VERSION=16.8.0
 
-FROM node:${NODE_VERSION}-alpine AS zkcream-api
-WORKDIR /api-server
+FROM node:${NODE_VERSION} as rapidsnark-builder
 
-RUN apk update && \
-    apk upgrade && \
-    apk add git \
-    curl \
-    bash \
-    wget \
-    build-base
+WORKDIR /rapidsnark
+RUN apt update && \
+    apt install build-essential \
+    libgmp-dev \
+    libsodium-dev \
+    nasm
+
+COPY ./rapidsnark/*.json rapidsnark/tasksfile.js rapidsnark/tools ./
+# COPY .rapidsnark/.git ./.git
+COPY ./rapidsnark/depends ./depends
+COPY ./rapidsnark/src ./src
+
+# install the node deps
+RUN npm install
+
+# build the fields
+RUN npx task createFieldSources
+
+# build the provder
+RUN npx task buildProver
+
+
+# build container
+FROM node:${NODE_VERSION} as zkcream-api
+
+RUN apt update -y && \
+    apt install -y build-essential \
+    libgmp-dev \
+    libsodium-dev \
+    nasm
+
+WORKDIR /api-server
 
 ARG NODE_ENV
 ENV NODE_ENV=$NODE_ENV
@@ -46,11 +70,13 @@ RUN cd zkcream && \
     yarn && \
     yarn build
 
+RUN cd zkcream/packages/contracts && \
+    yarn migrate:docker
+
 RUN cd zkcream/packages/circuits && \
     ./scripts/installZkutil.sh
 
-RUN cd zkcream/packages/contracts && \
-    yarn migrate:docker
+COPY --from=rapidsnark-builder /rapidsnark/build/prover /zkcream-api/rapidsnark/build/prover
 
 RUN echo "Building api-server" && \
     yarn build
