@@ -1,6 +1,6 @@
 # zkCREAM api server
 
-[![server test](https://github.com/zkcream/zkcream-api-server/actions/workflows/node.yml/badge.svg)](https://github.com/zkcream/zkcream-api-server/actions/workflows/node.yml)
+[![server test](https://github.com/zkcream/zkcream-api-server/actions/workflows/api.yml/badge.svg)](https://github.com/zkcream/zkcream-api-server/actions/workflows/api.yml)
 
 This is the server that provides the backend API for zkCREAM.
 
@@ -31,7 +31,7 @@ git submodule update --init
 ./scripts/start.sh
 ```
 
-Then, you can http request to the endpoint, for example:
+3. Then, you can http request to the endpoint, for example:
 
 ```bash
 curl http://localhost:3000/foo
@@ -41,6 +41,10 @@ curl http://localhost:3000/foo
 ```
 
 ## Build local
+
+### Requirements
+
+* ubuntu distro
 
 1. Submodule update
 
@@ -58,7 +62,29 @@ yarn
 yarn build
 ```
 
-3. Build and run api server
+3. Build rapidsnark
+
+    Install libraries based on rapidsnark's [repo](https://github.com/iden3/rapidsnark)
+
+```bash
+sudo apt install build-essential
+sudo apt-get install libgmp-dev
+sudo apt-get install libsodium-dev
+sudo apt-get install nasm
+```
+
+4.  Compile rapidsnark
+
+```bash
+cd rapidsnark
+npm install
+git submodule init
+git submodule update
+npx task createFieldSources
+npx task buildProver
+```
+
+5. Build and run api server
 
 ```bash
 cd ../ # project's top directory 
