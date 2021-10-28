@@ -29,21 +29,22 @@ maci:
     voteOptionTreeDepth: 2
 
 ipfs:
-  #url: 'http://50.19.146.202:5001'
-  url: 'http://localhost:5001'
-
-mongo:
-  db: zkcream
-  user: zkuser
-  password: zkuser
-  host: localhost
-  port: 27017
+  url: 'http://50.19.146.202:5001'
+  #url: 'http://localhost:5001'
 
 auth:
   saltrounds: 10
   jwt:
     secretOrKey: 'ashdfjhasdlkjfhalksdjhflak'
-    expiration: 432000 # 5 days
+    expiration: 432000 # 5 days in seconds
+
+cors:
+  origins:
+    - 'http://localhost:3000'
+    - 'http://localhost:3001'
+
+cookie:
+  secure: false
 
 server:
   port: 3000

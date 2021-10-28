@@ -3,11 +3,10 @@ import Koa from 'koa'
 import { IController } from './interface'
 
 import * as jwt from 'jsonwebtoken'
-import { User } from '../model/user'
 import config from '../config'
 import passport from 'koa-passport'
 import '../middlewares/passport'
-import { adminauth } from './auth'
+import { jwtauth } from './auth'
 
 class UserController implements IController {
   private Router = new Router({
@@ -15,36 +14,11 @@ class UserController implements IController {
   })
 
   public router = (): Router => {
-    return this.Router.post('/register', adminauth, this.registerUser).post(
-      '/login',
-      this.authenticateUser
+    return this.Router.post('/token', this.authenticateUser).get(
+      '/verify',
+      jwtauth,
+      this.verify
     )
-  }
-
-  public registerUser = async (ctx: Koa.Context): Promise<void> => {
-    const user = await User.findOne({
-      username: ctx.request.body.username,
-    }).exec()
-    if (user) {
-      ctx.throw(401, 'user already exists')
-    }
-
-    await User.create({
-      username: ctx.request.body.username,
-      password: ctx.request.body.password,
-      role: ctx.request.body.role,
-    })
-
-    const token = jwt.sign(
-      {
-        exp: Math.floor(Date.now() / 1000) + Number(config.auth.jwt.expiration),
-        username: ctx.request.body.username,
-      },
-      config.auth.jwt.secretOrKey
-    )
-
-    ctx.status = 200
-    ctx.body = { token: token }
   }
 
   public authenticateUser = (ctx: Koa.Context) => {
@@ -54,17 +28,28 @@ class UserController implements IController {
       } else {
         const token = jwt.sign(
           {
+            username: ctx.request.body.address,
             exp:
               Math.floor(Date.now() / 1000) +
               Number(config.auth.jwt.expiration),
-            username: user.username,
           },
           config.auth.jwt.secretOrKey
         )
         ctx.body = { token: token }
+        ctx.cookies.set('jwt', token, {
+          expires: new Date(
+            Date.now() + Number(config.auth.jwt.expiration) * 1000
+          ),
+          httpOnly: true,
+          secure: config.cookie.secure,
+        })
         ctx.status = 200
       }
     })(ctx)
+  }
+
+  public verify = (ctx: Koa.Context) => {
+    ctx.status = 200
   }
 }
 

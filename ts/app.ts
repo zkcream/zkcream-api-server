@@ -1,6 +1,5 @@
 import Koa, { Middleware } from 'koa'
 import cors from '@koa/cors'
-import passport from 'koa-passport'
 
 import CreamController from './controller/cream'
 import EchoController from './controller/echo'
@@ -10,7 +9,7 @@ import MaciController from './controller/maci'
 import FaucetController from './controller/faucet'
 import UserController from './controller/user'
 import { middlewares } from './middlewares'
-import './db/mongo'
+import { verifyOrigin } from './controller/utils'
 
 class App {
   public app: Koa
@@ -18,7 +17,15 @@ class App {
 
   constructor() {
     this.app = new Koa()
-    this.app.use(cors())
+
+    this.app.use(
+      cors({
+        origin: verifyOrigin,
+        allowMethods: 'POST, GET, OPTIONS, PUT, DELETE',
+        credentials: true,
+      })
+    )
+
     this.middlewares()
     this.routes()
   }

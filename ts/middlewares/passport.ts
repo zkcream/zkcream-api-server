@@ -1,68 +1,69 @@
 import passport from 'koa-passport'
-import passportLocal from 'passport-local'
 import passportJwt from 'passport-jwt'
+import passportLocal from 'passport-local'
 
-import { User } from '../model/user'
 import config from '../config'
+import {
+  ecrecover,
+  fromRpcSig,
+  keccak256,
+  pubToAddress,
+  bufferToHex,
+} from 'ethereumjs-util'
 
 const LocalStrategy = passportLocal.Strategy
 const JwtStrategy = passportJwt.Strategy
-const ExtractJwt = passportJwt.ExtractJwt
+
+const ETH_SIG_PREFIX = '\x19Ethereum Signed Message:\n'
+const DATA_TO_SIGN = 'zkcream'
 
 passport.use(
   new LocalStrategy(
-    { usernameField: 'username' },
+    {
+      usernameField: 'address',
+      passwordField: 'signature',
+    },
     (username, password, done) => {
-      User.findOne(
-        { username: username.toLowerCase() },
-        function (err: any, user: any) {
-          if (err) {
-            return done(err)
-          }
+      const address = username.toLowerCase()
+      const signature = password
+      const prefix = Buffer.from(ETH_SIG_PREFIX)
+      const buffer = Buffer.concat([
+        prefix,
+        Buffer.from(String(DATA_TO_SIGN.length)),
+        Buffer.from(DATA_TO_SIGN),
+      ])
+      const hash = keccak256(buffer)
 
-          if (!user) {
-            return done(null, false, { message: 'username not found' })
-          }
-
-          user.comparePassword(password, (err: Error, isMatch: boolean) => {
-            if (err) {
-              return done(err)
-            }
-
-            if (isMatch) {
-              return done(undefined, user)
-            }
-            return done(undefined, false, {
-              message: 'invalid username or password.',
-            })
-          })
+      if (signature != null) {
+        const res = fromRpcSig(signature)
+        const pubkey = ecrecover(hash, res.v, res.r, res.s)
+        const addressEthJs = bufferToHex(pubToAddress(pubkey)).toLowerCase()
+        if (address == addressEthJs) {
+          return done(undefined, true)
+        } else {
+          return done(undefined, false)
         }
-      )
+      }
     }
   )
 )
 
+const cookieExtractor = function (req) {
+  let token = ''
+  if (req.headers.cookie) {
+    token = req.headers.cookie.replace('jwt=', '')
+  }
+  return token
+}
+
 passport.use(
   new JwtStrategy(
     {
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      jwtFromRequest: cookieExtractor,
       secretOrKey: config.auth.jwt.secretOrKey,
     },
     function (jwtToken, done) {
-      User.findOne(
-        { username: jwtToken.username },
-        function (err: any, user: any) {
-          if (err) {
-            return done(err, false)
-          }
-
-          if (user) {
-            return done(undefined, user, jwtToken)
-          } else {
-            return done(undefined, false)
-          }
-        }
-      )
+      return done(undefined, jwtToken)
     }
   )
 )
