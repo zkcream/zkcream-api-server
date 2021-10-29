@@ -5,7 +5,11 @@ import Koa from 'koa'
 
 import config from '../config'
 import { IController } from './interface'
-import { findHash, genProofAndPublicSignals } from './utils'
+import {
+  extractTokenFromCookie,
+  findHash,
+  genProofAndPublicSignals,
+} from './utils'
 
 import S_Token from '../../abis/SignUpToken.json'
 import V_Token from '../../abis/VotingToken.json'
@@ -95,14 +99,14 @@ class CreamController implements IController {
     const creamAddress = ctx.params.address
 
     // get the whole zkcream deployed logs
-    const Authorization = ctx.headers.authorization
+    const Cookie = extractTokenFromCookie(ctx.headers.cookie)
 
     const url = 'http://localhost:' + port + '/factory/logs'
-    const r = await axios.get(url, { headers: { Authorization } })
+    const r = await axios.get(url, { headers: { Cookie } })
 
     const ipfsHash = findHash(creamAddress, r.data)
     const url2 = 'http://localhost:' + port + '/ipfs/' + ipfsHash
-    const r2 = await axios.get(url2, { headers: { Authorization } })
+    const r2 = await axios.get(url2, { headers: { Cookie } })
 
     const creamInstance = new ethers.Contract(
       creamAddress,

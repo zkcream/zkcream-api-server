@@ -50,10 +50,10 @@ export const getToken = async (): Promise<string> => {
   )
 
   const cookie = res.headers['set-cookie']
-  const jwtToken = /[^;]*/.exec(cookie)
-  if (jwtToken != null) {
-    const token = jwtToken[0].replace('jwt=', '')
-    return token
+  const match = new RegExp('(^| )jwt=([^;]+)').exec(cookie)
+  let token = ''
+  if (match) {
+    token = match[0].replace('jwt=', '')
   }
-  return ''
+  return token
 }

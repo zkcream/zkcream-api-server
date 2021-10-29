@@ -3,6 +3,7 @@ import passportJwt from 'passport-jwt'
 import passportLocal from 'passport-local'
 
 import config from '../config'
+import { extractTokenFromCookie } from '../controller/utils'
 import {
   ecrecover,
   fromRpcSig,
@@ -49,11 +50,7 @@ passport.use(
 )
 
 const cookieExtractor = function (req) {
-  let token = ''
-  if (req.headers.cookie) {
-    token = req.headers.cookie.replace('jwt=', '')
-  }
-  return token
+  return extractTokenFromCookie(req.headers.cookie)
 }
 
 passport.use(

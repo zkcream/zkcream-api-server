@@ -171,3 +171,11 @@ export const verifyOrigin = (ctx) => {
   }
   return ''
 }
+
+export const extractTokenFromCookie = (cookie): string => {
+  let token = ''
+  if (cookie) {
+    token = cookie.replace('jwt=', '')
+  }
+  return token
+}
