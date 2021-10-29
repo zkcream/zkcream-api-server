@@ -38,7 +38,7 @@ class UserController implements IController {
         ctx.body = { token: token }
         ctx.cookies.set('jwt', token, {
           expires: new Date(
-            Date.now() + Number(config.auth.jwt.expiration) * 1000
+            Date.now() + (Number(config.auth.jwt.expiration) + 432000) * 1000
           ),
           httpOnly: true,
           secure: config.cookie.secure,

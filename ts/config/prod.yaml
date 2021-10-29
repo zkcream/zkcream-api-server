@@ -35,7 +35,7 @@ auth:
   saltrounds: 10
   jwt:
     secretOrKey:
-    expiration: 432000 # 5 days in seconds
+    expiration: 86400 # 1 day in seconds
 
 cors:
   origins:
