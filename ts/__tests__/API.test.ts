@@ -16,21 +16,13 @@ import { Keypair, PrivKey } from 'maci-domainobjs'
 
 import app from '../app'
 import config from '../config'
-import {
-  register,
-  login,
-  testonlyuser,
-  getWithToken,
-  postWithToken,
-} from './utils'
-import { User } from '../model/user'
+import { getWithToken, postWithToken, getToken } from './utils'
 
 import V_Token from '../../abis/VotingToken.json'
 import Cream from '../../abis/Cream.json'
 import MACI from '../../abis/MACI.json'
 
 import { TokenType } from '../controller/cream'
-import mongoose from 'mongoose'
 
 const port = config.server.port
 const coordinatorPrivKey =
@@ -56,11 +48,8 @@ let token
 
 describe('Cream contract interaction API', () => {
   beforeAll(async () => {
-    await User.findOneAndDelete({ username: testonlyuser }).exec()
     server = app.listen(port)
-    await register()
-    const r = await login()
-    token = r.data.token
+    token = await getToken()
   })
 
   /* =======================================================
@@ -375,8 +364,6 @@ describe('Cream contract interaction API', () => {
   })
 
   afterAll(async () => {
-    await User.findOneAndDelete({ username: testonlyuser }).exec()
-    await mongoose.connection.close()
     await server.close()
   })
 })

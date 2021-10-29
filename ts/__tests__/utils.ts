@@ -3,7 +3,6 @@ import querystring from 'querystring'
 import config from '../config'
 
 const host = config.server.host
-export const testonlyuser = '!!onlyfortest!!'
 
 export const get = async (path?: string): Promise<AxiosResponse<any>> => {
   const url = path ? host + '/' + path : host
@@ -23,8 +22,8 @@ export const getWithToken = async (
   token?: string
 ): Promise<AxiosResponse<any>> => {
   const url = path ? host + '/' + path : host
-  const Authorization = `Bearer ${token}`
-  return await axios.get(url, { headers: { Authorization } })
+  const Cookie = `jwt=${token}`
+  return await axios.get(url, { headers: { Cookie } })
 }
 
 export const postWithToken = async (
@@ -33,30 +32,28 @@ export const postWithToken = async (
   token: string
 ): Promise<AxiosResponse<any>> => {
   const url = host + '/' + path
-  const Authorization = `Bearer ${token}`
-  return await axios.post(url, data, { headers: { Authorization } })
+  const Cookie = `jwt=${token}`
+  return await axios.post(url, data, { headers: { Cookie } })
 }
 
-export const register = async (): Promise<AxiosResponse<any>> => {
-  const url = host + '/user/register'
-  return await axios.post(url, {
-    username: testonlyuser,
-    password: testonlyuser,
-  })
-}
-
-export const login = async (): Promise<AxiosResponse<any>> => {
-  const url = host + '/user/login'
-  return await axios.post(
+export const getToken = async (): Promise<string> => {
+  const address = '0xf17f52151EbEF6C7334FAD080c5704D77216b732'
+  const sig =
+    '0x9d1aa2aaf05341456910dfefee0f4023e2431487cd3485396c2703efff38bf2960bbea386c0d83623044aded193e32c97c9e59b61411af436b279366a607f2f51b'
+  const url = host + '/user/token'
+  const res = await axios.post(
     url,
     querystring.stringify({
-      username: testonlyuser,
-      password: testonlyuser,
-    }),
-    {
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-    }
+      address: address,
+      signature: sig,
+    })
   )
+
+  const cookie = res.headers['set-cookie']
+  const jwtToken = /[^;]*/.exec(cookie)
+  if (jwtToken != null) {
+    const token = jwtToken[0].replace('jwt=', '')
+    return token
+  }
+  return ''
 }

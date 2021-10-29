@@ -2,17 +2,7 @@ import axios from 'axios'
 import { ethers, BigNumber } from 'ethers'
 import app from '../app'
 import config from '../config'
-import {
-  get,
-  post,
-  register,
-  login,
-  testonlyuser,
-  getWithToken,
-  postWithToken,
-} from './utils'
-import { User } from '../model/user'
-import mongoose from 'mongoose'
+import { post, getWithToken, postWithToken, getToken } from './utils'
 
 const port = config.server.port
 
@@ -21,11 +11,8 @@ let token
 
 describe('Server API', () => {
   beforeAll(async () => {
-    await User.findOneAndDelete({ username: testonlyuser }).exec()
     server = app.listen(port)
-    await register()
-    const r = await login()
-    token = r.data.token
+    token = await getToken()
   })
 
   test('logged in? -> should have token', async () => {
@@ -34,7 +21,7 @@ describe('Server API', () => {
 
   test('GET /:msg -> should echo msg', async () => {
     const e = 'zkCREAM'
-    const r = await get(e)
+    const r = await getWithToken(e, token)
     expect(e).toEqual(r.data.msg)
   })
 
@@ -95,8 +82,6 @@ describe('Server API', () => {
   })
 
   afterAll(async () => {
-    await User.findOneAndDelete({ username: testonlyuser }).exec()
-    await mongoose.connection.close()
     await server.close()
   })
 })
