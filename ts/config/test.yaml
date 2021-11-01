@@ -45,6 +45,7 @@ cors:
 
 cookie:
   secure: false
+  samesite: 'lax'
 
 server:
   port: 3000

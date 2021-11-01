@@ -39,11 +39,11 @@ auth:
 
 cors:
   origins:
-    - 'http://localhost:3000'
-    - 'http://localhost:3001'
+  samesite: 'none'
 
 cookie:
   secure: true
+  samesite: 'none'
 
 server:
   port: 3000

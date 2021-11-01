@@ -42,6 +42,7 @@ class UserController implements IController {
           ),
           httpOnly: true,
           secure: config.cookie.secure,
+          sameSite: config.cookie.samesite,
         })
         ctx.status = 200
       }
