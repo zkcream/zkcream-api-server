@@ -8,7 +8,6 @@ import { ethers } from 'ethers'
 const LocalStrategy = passportLocal.Strategy
 const JwtStrategy = passportJwt.Strategy
 
-const ETH_SIG_PREFIX = '\x19Ethereum Signed Message:\n'
 const DATA_TO_SIGN = 'zkcream'
 
 passport.use(
@@ -20,8 +19,7 @@ passport.use(
     (username, password, done) => {
       const address = username
       const signature = password
-      const msg = ETH_SIG_PREFIX + String(DATA_TO_SIGN.length) + DATA_TO_SIGN
-      const msgHash = ethers.utils.hashMessage(msg)
+      const msgHash = ethers.utils.hashMessage(DATA_TO_SIGN)
 
       if (signature != null) {
         const addressRecovered = ethers.utils.verifyMessage(msgHash, signature)

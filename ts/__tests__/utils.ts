@@ -39,7 +39,7 @@ export const postWithToken = async (
 export const getToken = async (): Promise<string> => {
   const address = '0xf17f52151EbEF6C7334FAD080c5704D77216b732'
   const sig =
-    '0x9d1aa2aaf05341456910dfefee0f4023e2431487cd3485396c2703efff38bf2960bbea386c0d83623044aded193e32c97c9e59b61411af436b279366a607f2f51b'
+    '0x5356399a3493d938066a85b81db4c4fba7d88dea08c80e5dbdcc556d2de01f551d3fadde73e89a1c2433044a622879ea23b3548903927c5e2e9a9b1ff2143bc21b'
   const url = host + '/user/token'
   const res = await axios.post(
     url,
