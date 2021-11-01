@@ -20,14 +20,11 @@ passport.use(
     (username, password, done) => {
       const address = username
       const signature = password
-      const msgBytes = ethers.utils.toUtf8Bytes(
-        ETH_SIG_PREFIX + String(DATA_TO_SIGN.length) + DATA_TO_SIGN
-      )
-      const hash = ethers.utils.keccak256(msgBytes)
-      const sig = ethers.utils.splitSignature(signature)
+      const msg = ETH_SIG_PREFIX + String(DATA_TO_SIGN.length) + DATA_TO_SIGN
+      const msgHash = ethers.utils.hashMessage(msg)
 
       if (signature != null) {
-        const addressRecovered = ethers.utils.recoverAddress(hash, sig)
+        const addressRecovered = ethers.utils.verifyMessage(msgHash, signature)
         if (
           address.toLocaleLowerCase() == addressRecovered.toLocaleLowerCase()
         ) {
