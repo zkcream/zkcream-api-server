@@ -169,7 +169,7 @@ export const verifyOrigin = (ctx) => {
   if (allowedOrigins.indexOf(origin) !== -1 && origin != null) {
     return origin
   }
-  return ''
+  ctx.throw(401, 'unauthorized')
 }
 
 export const extractTokenFromCookie = (cookie): string => {
