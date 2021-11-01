@@ -26,7 +26,7 @@ passport.use(
       if (signature != null) {
         const addressRecovered = ethers.utils.verifyMessage(msgHash, signature)
         if (
-          address.toLocaleLowerCase() == addressRecovered.toLocaleLowerCase()
+          address.toLocaleLowerCase() === addressRecovered.toLocaleLowerCase()
         ) {
           return done(undefined, true)
         } else {
