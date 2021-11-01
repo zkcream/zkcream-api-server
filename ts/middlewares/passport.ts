@@ -4,14 +4,7 @@ import passportLocal from 'passport-local'
 
 import config from '../config'
 import { extractTokenFromCookie } from '../controller/utils'
-import {
-  ecrecover,
-  fromRpcSig,
-  keccak256,
-  pubToAddress,
-  bufferToHex,
-} from 'ethereumjs-util'
-
+import { ethers } from 'ethers'
 const LocalStrategy = passportLocal.Strategy
 const JwtStrategy = passportJwt.Strategy
 
@@ -25,21 +18,19 @@ passport.use(
       passwordField: 'signature',
     },
     (username, password, done) => {
-      const address = username.toLowerCase()
+      const address = username
       const signature = password
-      const prefix = Buffer.from(ETH_SIG_PREFIX)
-      const buffer = Buffer.concat([
-        prefix,
-        Buffer.from(String(DATA_TO_SIGN.length)),
-        Buffer.from(DATA_TO_SIGN),
-      ])
-      const hash = keccak256(buffer)
+      const msgBytes = ethers.utils.toUtf8Bytes(
+        ETH_SIG_PREFIX + String(DATA_TO_SIGN.length) + DATA_TO_SIGN
+      )
+      const hash = ethers.utils.keccak256(msgBytes)
+      const sig = ethers.utils.splitSignature(signature)
 
       if (signature != null) {
-        const res = fromRpcSig(signature)
-        const pubkey = ecrecover(hash, res.v, res.r, res.s)
-        const addressEthJs = bufferToHex(pubToAddress(pubkey)).toLowerCase()
-        if (address == addressEthJs) {
+        const addressRecovered = ethers.utils.recoverAddress(hash, sig)
+        if (
+          address.toLocaleLowerCase() == addressRecovered.toLocaleLowerCase()
+        ) {
           return done(undefined, true)
         } else {
           return done(undefined, false)
