@@ -32,7 +32,6 @@ ipfs:
   url: 'http://zkcream-ipfs:5001'
 
 auth:
-  saltrounds: 10
   jwt:
     secretOrKey:
     expiration: 86400 # 1 day in seconds

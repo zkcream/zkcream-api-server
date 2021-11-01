@@ -33,7 +33,6 @@ ipfs:
   url: 'http://localhost:5001'
 
 auth:
-  saltrounds: 10
   jwt:
     secretOrKey: 'ashdfjhasdlkjfhalksdjhflak'
     expiration: 432000 # 5 days in seconds
