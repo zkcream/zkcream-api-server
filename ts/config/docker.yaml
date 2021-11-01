@@ -39,7 +39,6 @@ auth:
 
 cors:
   origins:
-  samesite: 'none'
 
 cookie:
   secure: true
