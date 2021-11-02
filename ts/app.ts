@@ -21,7 +21,7 @@ class App {
     this.app.use(
       cors({
         origin: verifyOrigin,
-        allowMethods: 'POST, GET, OPTIONS, PUT, DELETE',
+        allowMethods: 'POST, GET',
         credentials: true,
       })
     )
