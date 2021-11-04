@@ -83,16 +83,19 @@ describe('Server API', () => {
   })
 
   test('POST /faucet requested from the same IP address within 24 hours -> request should fail with 401', async () => {
-    const to = '0xC5fdf4076b8F3A5357c5E395ab970B5B54098Fef'
+    const to = '0xf17f52151ebef6c7334fad080c5704d77216b732'
+    let errorMsg: string = ''
     try {
       await post('faucet/', { to: to })
     } catch (e: any) {
-      expect(e.message).toEqual('Request failed with status code 401')
+      errorMsg = e.message
     }
+    expect(errorMsg).toEqual('Request failed with status code 401')
   })
 
   afterAll(async () => {
     await redisClient.flushdb()
+    redisClient.disconnect()
     await server.close()
   })
 })
