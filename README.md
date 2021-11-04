@@ -89,6 +89,6 @@ yarn workspace @cream/contracts migrate
 
 ```bash
 cd ../ # project's top directory 
-yarn start:db
+yarn start:redis
 yarn test
 ```

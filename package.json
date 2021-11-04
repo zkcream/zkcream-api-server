@@ -13,7 +13,7 @@
     "postbuild": "yarn copy:config",
     "postinstall": "husky install",
     "start": "node ./build/ts/index.js",
-    "start:db": "cd docker && docker-compose up -d db",
+    "start:redis": "cd docker && docker-compose up -d zkcream-redis",
     "test": "npx jest --runInBand",
     "test:server": "npx jest Server.test.ts",
     "test:api": "npx jest API.test.ts",
