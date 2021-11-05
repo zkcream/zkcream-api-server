@@ -8,7 +8,6 @@ export = async (ctx: Koa.Context, next) => {
         message: e.message,
       }
     } else {
-      console.log(e)
       ctx.status = 500
       ctx.body = {
         message: 'Internal Server Error',
