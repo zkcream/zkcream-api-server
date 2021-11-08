@@ -64,6 +64,7 @@ yarn build
 cd ../ # project's top directory
 yarn
 yarn build
+yarn start:redis
 yarn start # running at port 3000
 ```
 
@@ -85,7 +86,7 @@ yarn start:ipfs
 yarn workspace @cream/contracts migrate
 ```
 
-2. Then, after running MongoDB, you can run test command as follows:
+2. Then, after running redis, you can run test command as follows:
 
 ```bash
 cd ../ # project's top directory 
