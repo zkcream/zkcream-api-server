@@ -41,10 +41,18 @@ cors:
   origins:
     - 'http://localhost:3000'
     - 'http://localhost:3001'
+    - 'http://localhost:8080'
 
 cookie:
   secure: false
   samesite: 'lax'
+
+redis:
+  host: localhost
+  port: 6379
+
+faucet:
+  expiration: 86400 # 24 hours in seconds
 
 server:
   port: 3000

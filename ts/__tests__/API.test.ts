@@ -23,6 +23,7 @@ import Cream from '../../abis/Cream.json'
 import MACI from '../../abis/MACI.json'
 
 import { TokenType } from '../controller/cream'
+import { redisClient } from '../db/redis'
 
 const port = config.server.port
 const coordinatorPrivKey =
@@ -48,6 +49,7 @@ let token
 
 describe('Cream contract interaction API', () => {
   beforeAll(async () => {
+    await redisClient.flushdb()
     server = app.listen(port)
     token = await getToken()
   })
@@ -364,6 +366,8 @@ describe('Cream contract interaction API', () => {
   })
 
   afterAll(async () => {
+    await redisClient.flushdb()
+    redisClient.disconnect()
     await server.close()
   })
 })

@@ -2,7 +2,8 @@ import axios from 'axios'
 import { ethers, BigNumber } from 'ethers'
 import app from '../app'
 import config from '../config'
-import { post, getWithToken, postWithToken, getToken } from './utils'
+import { get, post, getWithToken, postWithToken, getToken } from './utils'
+import { redisClient } from '../db/redis'
 
 const port = config.server.port
 
@@ -43,6 +44,15 @@ describe('Server API', () => {
     expect(e).toEqual(r.data)
   })
 
+  test('POST /ipfs without token -> request should fail with 401', async () => {
+    const hash = 'QmeT5VjyMrbL5HPHxy4UkjR5pijPhbHsV9w5T9MRDwEnkf'
+    try {
+      await get('ipfs/' + hash)
+    } catch (e: any) {
+      expect(e.message).toEqual('Request failed with status code 401')
+    }
+  })
+
   test('POST /faucet -> should be able to transfer eth', async () => {
     let id = Math.floor(Math.random() * 1000000000) + 1
     const to = '0xf17f52151ebef6c7334fad080c5704d77216b732'
@@ -57,7 +67,7 @@ describe('Server API', () => {
 
     const before: BigNumber = ethers.BigNumber.from(r1.data.result)
 
-    await postWithToken('faucet/', { to: to }, token)
+    await post('faucet/', { to: to })
 
     id = id + 1
     const r2 = await axios.post(config.eth.url, {
@@ -72,16 +82,20 @@ describe('Server API', () => {
     expect(before.add(value).eq(after))
   })
 
-  test('POST /faucet without token -> request should fail with 401', async () => {
+  test('POST /faucet requested from the same IP address within 24 hours -> request should fail with 401', async () => {
     const to = '0xf17f52151ebef6c7334fad080c5704d77216b732'
+    let errorMsg: string = ''
     try {
       await post('faucet/', { to: to })
     } catch (e: any) {
-      expect(e.message).toEqual('Request failed with status code 401')
+      errorMsg = e.message
     }
+    expect(errorMsg).toEqual('Request failed with status code 401')
   })
 
   afterAll(async () => {
+    await redisClient.flushdb()
+    redisClient.disconnect()
     await server.close()
   })
 })
