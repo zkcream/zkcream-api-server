@@ -36,8 +36,7 @@ jobs:
       - name: Setup ipfs and redis
         working-directory: zkcream-api-server/zkcream-api-server
         run: |
-          docker-compose -f "docker/docker-compose.yml" up -d zkcream-ipfs
-          docker-compose -f "docker/docker-compose.yml" up -d zkcream-redis
+          docker-compose -f "docker/docker-compose.yml" up -d zkcream-ipfs zkcream-redis
 
       - name: Setup Contracts
         working-directory: zkcream-api-server/zkcream-api-server/zkcream
