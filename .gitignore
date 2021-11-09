@@ -1,4 +1,4 @@
 node_modules
 build
-docker/mongo/.data/
 docker/.env
+*.log
