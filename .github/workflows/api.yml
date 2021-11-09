@@ -32,6 +32,22 @@ jobs:
           yarn
           yarn build
           ./packages/circuits/scripts/installZkutil.sh
+      
+      - name: Install libraies for rapisnark
+        run: |
+          sudo apt install build-essential
+          sudo apt-get install libgmp-dev
+          sudo apt-get install libsodium-dev
+          sudo apt-get install nasm
+
+      - name: Setup for rapidsnark
+        working-directory: zkcream-api-server/zkcream-api-server/rapidsnark
+        run: |
+          npm install
+          git submodule init
+          git submodule update
+          npx task createFieldSources
+          npx task buildProver
 
       - name: Setup ipfs and redis
         working-directory: zkcream-api-server/zkcream-api-server

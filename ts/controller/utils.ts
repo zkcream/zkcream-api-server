@@ -128,6 +128,10 @@ export const genProofAndPublicSignals = async (
   const snarkjsCmd: string =
     'node ' +
     path.join(creamCircuitsPath, './node_modules/snarkjs/build/cli.cjs')
+  const rapidSnarkCmd: string = path.join(
+    appRoot.path,
+    './rapidsnark/build/prover'
+  )
 
   if (!circuit) {
     circuit = await compileAndLoadCircuit(circuitFileName, creamCircuitsPath)
@@ -141,9 +145,9 @@ export const genProofAndPublicSignals = async (
   // snrakjs wej [witness.wtns] [witness.json]
   execSync(`${snarkjsCmd} wej ${wtnsPath} ${witnessJsonPath}`)
 
-  // snarkjs g16p [.zkey] [witness.wtns] [proof.json] [public.json]
+  // ./rapidsnark/build/prover [.zkey] [witness.wtns] [proof.json] [public.json]
   execSync(
-    `${snarkjsCmd} g16p ${zkeyPath} ${wtnsPath} ${proofPath} ${publicJsonPath} `
+    `${rapidSnarkCmd} ${zkeyPath} ${wtnsPath} ${proofPath} ${publicJsonPath}`
   )
 
   const witness = unstringifyBigInts(
