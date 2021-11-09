@@ -46,21 +46,9 @@ services:
     ports:
       - "80:80"
 
-  db:
-    image: mongo
-    container_name: db
-    environment:
-      - MONGO_INITDB_ROOT_USERNAME=${MONGO_ROOT_USERNAME}
-      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_ROOT_PASSWORD}
-      - MONGO_HOST=${MONGO_HOST}
-      - MONGO_PORT=${MONGO_PORT}
-      - MONGO_ROOT_USER=${MONGO_ROOT_USERNAME}
-      - MONGO_ROOT_PASS=${MONGO_ROOT_PASSWORD}
-      - ZK_MONGO_USER=${ZK_MONGO_USER}
-      - ZK_MONGO_PASS=${ZK_MONGO_PASS}
-      - ZK_MONGO_DB=${ZK_MONGO_DB}
+  zkcream-redis:
+    container_name: zkcream-redis
+    image: "redis:latest"
     ports:
-      - "27017:27017"
-    volumes:
-      - ./mongo/.data:/data/db
-      - ./mongo/entry:/docker-entrypoint-initdb.d/
+      - "6379:6379"
+    restart: always

@@ -3,6 +3,7 @@ import * as path from 'path'
 import appRoot from 'app-root-path'
 import * as ethers from 'ethers'
 import { execSync } from 'child_process'
+import config from '../config'
 
 const ff = require('ffjavascript')
 const tester = require('circom').tester
@@ -160,4 +161,21 @@ export const genProofAndPublicSignals = async (
   execSync(`rm -f ${inputsJsonPath} `)
 
   return formatProofForVerifierContract(proof)
+}
+
+export const verifyOrigin = (ctx) => {
+  const allowedOrigins = config.cors.origins
+  const origin = ctx.headers.origin
+  if (allowedOrigins.indexOf(origin) !== -1 && origin != null) {
+    return origin
+  }
+  ctx.throw(401, 'unauthorized')
+}
+
+export const extractTokenFromCookie = (cookie): string => {
+  let token = ''
+  if (cookie) {
+    token = cookie.replace('jwt=', '')
+  }
+  return token
 }

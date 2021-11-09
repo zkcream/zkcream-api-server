@@ -1,68 +1,52 @@
 import passport from 'koa-passport'
-import passportLocal from 'passport-local'
 import passportJwt from 'passport-jwt'
+import passportLocal from 'passport-local'
 
-import { User } from '../model/user'
 import config from '../config'
-
+import { extractTokenFromCookie } from '../controller/utils'
+import { ethers } from 'ethers'
 const LocalStrategy = passportLocal.Strategy
 const JwtStrategy = passportJwt.Strategy
-const ExtractJwt = passportJwt.ExtractJwt
+
+const DATA_TO_SIGN = 'zkcream'
 
 passport.use(
   new LocalStrategy(
-    { usernameField: 'username' },
+    {
+      usernameField: 'address',
+      passwordField: 'signature',
+    },
     (username, password, done) => {
-      User.findOne(
-        { username: username.toLowerCase() },
-        function (err: any, user: any) {
-          if (err) {
-            return done(err)
-          }
+      const address = username
+      const signature = password
+      const msgHash = ethers.utils.hashMessage(DATA_TO_SIGN)
 
-          if (!user) {
-            return done(null, false, { message: 'username not found' })
-          }
-
-          user.comparePassword(password, (err: Error, isMatch: boolean) => {
-            if (err) {
-              return done(err)
-            }
-
-            if (isMatch) {
-              return done(undefined, user)
-            }
-            return done(undefined, false, {
-              message: 'invalid username or password.',
-            })
-          })
+      if (signature != null) {
+        const addressRecovered = ethers.utils.verifyMessage(msgHash, signature)
+        if (
+          address.toLocaleLowerCase() === addressRecovered.toLocaleLowerCase()
+        ) {
+          return done(undefined, true)
+        } else {
+          return done(undefined, false)
         }
-      )
+      }
     }
   )
 )
 
+const cookieExtractor = function (req) {
+  return extractTokenFromCookie(req.headers.cookie)
+}
+
 passport.use(
   new JwtStrategy(
     {
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      jwtFromRequest: cookieExtractor,
       secretOrKey: config.auth.jwt.secretOrKey,
     },
     function (jwtToken, done) {
-      User.findOne(
-        { username: jwtToken.username },
-        function (err: any, user: any) {
-          if (err) {
-            return done(err, false)
-          }
-
-          if (user) {
-            return done(undefined, user, jwtToken)
-          } else {
-            return done(undefined, false)
-          }
-        }
-      )
+      return done(undefined, jwtToken)
     }
   )
 )
