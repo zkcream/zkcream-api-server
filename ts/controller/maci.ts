@@ -15,6 +15,7 @@ import {
   verifyQvtProof,
   getSignalByName,
 } from 'maci-circuits'
+import { jwtauth } from './auth'
 
 class MaciController implements IController {
   private Router = new Router({
@@ -29,10 +30,8 @@ class MaciController implements IController {
   }
 
   public router = (): Router => {
-    return this.Router.get(
-      '/params/:address',
-      this.getParamsForMaciState.bind(this)
-    )
+    return this.Router.use(jwtauth)
+      .get('/params/:address', this.getParamsForMaciState.bind(this))
       .post('/genproof', this.genProof.bind(this))
       .post('/gen_qvtproof', this.genQvtProof.bind(this))
   }
@@ -89,15 +88,11 @@ class MaciController implements IController {
    */
   private genProof = async (ctx: Koa.Context) => {
     const { circuitInputs, configType, stateRootAfter } = ctx.request.body
-    const {
-      circuit,
-      witness,
-      proof,
-      publicSignals,
-    } = await genBatchUstProofAndPublicSignals(
-      JSON.parse(circuitInputs),
-      configType
-    )
+    const { circuit, witness, proof, publicSignals } =
+      await genBatchUstProofAndPublicSignals(
+        JSON.parse(circuitInputs),
+        configType
+      )
 
     // Get the circuit-generated root
     const circuitNewStateRoot = getSignalByName(circuit, witness, 'main.root')
@@ -128,12 +123,8 @@ class MaciController implements IController {
       newPerVOSpentVoiceCreditsCommitment,
       contractPublicSignals,
     } = ctx.request.body
-    const {
-      circuit,
-      witness,
-      proof,
-      publicSignals,
-    } = await genQvtProofAndPublicSignals(JSON.parse(circuitInputs), configType)
+    const { circuit, witness, proof, publicSignals } =
+      await genQvtProofAndPublicSignals(JSON.parse(circuitInputs), configType)
 
     // The vote tally commmitment
     const expectedNewResultsCommitmentOutput = getSignalByName(

@@ -31,6 +31,25 @@ maci:
 ipfs:
   url:
 
+auth:
+  jwt:
+    secretOrKey:
+    expiration: 86400 # 1 day in seconds
+
+cors:
+  origins:
+
+cookie:
+  secure: true
+  samesite: 'none'
+
+redis:
+  host: localhost
+  port: 6379
+
+faucet:
+  expiration: 86400 # 24 hours in seconds
+
 server:
   port: 3000
   host: 'http://localhost:3000'

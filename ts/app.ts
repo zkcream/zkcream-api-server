@@ -7,7 +7,9 @@ import FactoryController from './controller/factory'
 import IpfsController from './controller/ipfs'
 import MaciController from './controller/maci'
 import FaucetController from './controller/faucet'
+import UserController from './controller/user'
 import { middlewares } from './middlewares'
+import { verifyOrigin } from './controller/utils'
 
 class App {
   public app: Koa
@@ -15,7 +17,15 @@ class App {
 
   constructor() {
     this.app = new Koa()
-    this.app.use(cors())
+
+    this.app.use(
+      cors({
+        origin: verifyOrigin,
+        allowMethods: 'POST, GET',
+        credentials: true,
+      })
+    )
+
     this.middlewares()
     this.routes()
   }
@@ -51,6 +61,7 @@ class App {
     this.app.use(MaciController.routes())
     this.app.use(IpfsController.routes())
     this.app.use(FaucetController.routes())
+    this.app.use(UserController.routes())
   }
 }
 

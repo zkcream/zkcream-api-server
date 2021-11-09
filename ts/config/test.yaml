@@ -29,7 +29,30 @@ maci:
     voteOptionTreeDepth: 2
 
 ipfs:
+  #url: 'http://50.19.146.202:5001'
   url: 'http://localhost:5001'
+
+auth:
+  jwt:
+    secretOrKey: 'ashdfjhasdlkjfhalksdjhflak'
+    expiration: 432000 # 5 days in seconds
+
+cors:
+  origins:
+    - 'http://localhost:3000'
+    - 'http://localhost:3001'
+    - 'http://localhost:8080'
+
+cookie:
+  secure: false
+  samesite: 'lax'
+
+redis:
+  host: localhost
+  port: 6379
+
+faucet:
+  expiration: 86400 # 24 hours in seconds
 
 server:
   port: 3000

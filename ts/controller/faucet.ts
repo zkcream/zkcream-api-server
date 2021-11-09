@@ -4,6 +4,7 @@ import Koa from 'koa'
 
 import config from '../config'
 import { IController } from './interface'
+import { jwtauth, limitIp } from './auth'
 
 class FaucetController implements IController {
   private Router = new Router({
@@ -13,7 +14,7 @@ class FaucetController implements IController {
   constructor() {}
 
   public router = (): Router => {
-    return this.Router.post('/', this.getEth)
+    return this.Router.use(limitIp).post('/', this.getEth)
   }
 
   private getEth = async (ctx: Koa.Context) => {

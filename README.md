@@ -87,16 +87,18 @@ npx task buildProver
 5. Build and run api server
 
 ```bash
-cd ../ # project's top directory 
+cd ../ # project's top directory
+yarn
 yarn build
-yarn run # running at port 3000
+yarn start:redis
+yarn start # running at port 3000
 ```
 
 Then access `{HOST}:{PORT}` `http://localhost:3000` for a test environment. You can change the hostname and port number customising the [config](https://github.com/zkcream/zkcream-api-server/tree/master/ts/config) file.
 
 ## Test
 
-1. You need to run `ganche` and `ipfs` node and finally migrate the contracts by typing
+1. You need to run `ganache` and `ipfs` node and finally migrate the contracts by typing
 
 ```bash
 cd zkcream
@@ -110,9 +112,10 @@ yarn start:ipfs
 yarn workspace @cream/contracts migrate
 ```
 
-2. Then, you can run test command as follows:
+2. Then, after running redis, you can run test command as follows:
 
 ```bash
 cd ../ # project's top directory 
+yarn start:redis
 yarn test
 ```

@@ -45,3 +45,10 @@ services:
       - zkcream-api
     ports:
       - "80:80"
+
+  zkcream-redis:
+    container_name: zkcream-redis
+    image: "redis:latest"
+    ports:
+      - "6379:6379"
+    restart: always

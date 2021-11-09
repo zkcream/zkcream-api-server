@@ -49,9 +49,10 @@ jobs:
           npx task createFieldSources
           npx task buildProver
 
-      - name: Setup ipfs
-        working-directory: zkcream-api-server/zkcream-api-server/zkcream
-        run: docker-compose -f "docker/docker-compose.yml" up -d
+      - name: Setup ipfs and redis
+        working-directory: zkcream-api-server/zkcream-api-server
+        run: |
+          docker-compose -f "docker/docker-compose.yml" up -d zkcream-ipfs zkcream-redis
 
       - name: Setup Contracts
         working-directory: zkcream-api-server/zkcream-api-server/zkcream
@@ -77,4 +78,4 @@ jobs:
       - name: Stop container
         if: always()
         working-directory: zkcream-api-server/zkcream-api-server/zkcream
-        run: docker-compose -f "docker/docker-compose.yml" down
+        run: docker-compose -f "docker/docker-compose.yml" down --remove-orphans
