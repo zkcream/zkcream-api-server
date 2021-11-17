@@ -1,6 +1,6 @@
-[submodule "zkcream"]
-	path = zkcream
-	url = https://github.com/couger-inc/cream.git
 [submodule "rapidsnark"]
 	path = rapidsnark
 	url = git@github.com:iden3/rapidsnark.git
+[submodule "zkcream"]
+	path = zkcream
+	url = git@github.com:couger-inc/cream.git
