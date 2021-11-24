@@ -24,14 +24,29 @@ cd zkcream-api-server && \
 git submodule update --init
 ```
 
-2. Build Docker
+2. Set [docker.yaml](./ts/config/docker.yaml) with jwt secret key and ip addresses of frontend
+
+```yaml
+# sample configurations
+auth:
+  jwt:
+    secretOrKey: 'foo'
+    expiration: 300 # 5 min in seconds
+
+cors:
+  origins:
+    - 'http://bar/'
+    - 'http://baz'
+```
+
+3. Build Docker
 
 ```bash
 ./scripts/buildDev.sh
 ./scripts/start.sh
 ```
 
-3. Then, you can http request to the endpoint, for example:
+4. Then, you can http request to the endpoint, for example:
 
 ```bash
 curl http://localhost:3000/foo
