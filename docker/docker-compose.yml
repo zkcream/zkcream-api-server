@@ -15,17 +15,27 @@ services:
       - "8545:8545"
     restart: always
 
+  zkcream-redis:
+    container_name: zkcream-redis
+    build:
+      context: ./redis
+    ports:
+      - "6379:6379"
+    restart: always
+
   zkcream-api:
     container_name: zkcream-api
     working_dir: /api-server
     build:
       context: ../
     environment:
-     - NODE_ENV=docker  
+      - NODE_ENV=docker
     command:
         yarn start
     ports:
       - "3000:3000"
+    links:
+      - zkcream-redis
     restart: always
 
   # geth:
@@ -45,10 +55,3 @@ services:
       - zkcream-api
     ports:
       - "80:80"
-
-  zkcream-redis:
-    container_name: zkcream-redis
-    image: "redis:latest"
-    ports:
-      - "6379:6379"
-    restart: always
